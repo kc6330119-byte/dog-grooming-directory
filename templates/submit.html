@@ -9,11 +9,11 @@
             <nav class="text-sm text-gray-500 mb-3">
                 <a href="/" class="hover:text-cyan-600">Home</a>
                 <span class="mx-2">/</span>
-                <span>Submit a Splash Pad</span>
+                <span>Submit a Dog Groomer</span>
             </nav>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Submit a Splash Pad Listing</h1>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Submit a Dog Groomer Listing</h1>
             <p class="text-gray-500">
-                Know of a splash pad, spray park, or water play area that's missing from our directory?
+                Know of a dog groomer that's missing from our directory?
                 Fill out the form below and we'll review and add it — usually within a few days.
             </p>
         </div>
@@ -30,17 +30,17 @@
                 <!-- Section: Facility Info -->
                 <div>
                     <h2 class="text-base font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">
-                        💧 Facility Information
+                        ✂️ Groomer Information
                     </h2>
                     <div class="space-y-4">
 
                         <div>
                             <label for="facility-name" class="block text-sm font-medium text-gray-700 mb-1.5">
-                                Facility Name <span class="text-red-500">*</span>
+                                Business Name <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="facility-name" id="facility-name" required
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm"
-                                placeholder="e.g. Riverside Splash Pad">
+                                placeholder="e.g. Happy Paws Dog Grooming">
                         </div>
 
                         <div>
@@ -87,12 +87,13 @@
                                     placeholder="(555) 555-5555">
                             </div>
                             <div>
-                                <label for="admission" class="block text-sm font-medium text-gray-700 mb-1.5">Admission</label>
-                                <select name="admission" id="admission"
+                                <label for="price-range" class="block text-sm font-medium text-gray-700 mb-1.5">Price Range</label>
+                                <select name="price-range" id="price-range"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm">
                                     <option value="">Unknown</option>
-                                    <option value="Free">Free</option>
-                                    <option value="Paid">Paid</option>
+                                    <option value="$">$ (Budget-Friendly)</option>
+                                    <option value="$$">$$ (Moderate)</option>
+                                    <option value="$$$">$$$ (Premium)</option>
                                 </select>
                             </div>
                         </div>
@@ -116,7 +117,7 @@
                             <label for="hours" class="block text-sm font-medium text-gray-700 mb-1.5">Hours of Operation</label>
                             <input type="text" name="hours" id="hours"
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm"
-                                placeholder="e.g. Daily 9am – 8pm (Memorial Day – Labor Day)">
+                                placeholder="e.g. Mon-Sat: 8am - 6pm">
                         </div>
 
                     </div>
@@ -125,35 +126,31 @@
                 <!-- Section: Type & Features -->
                 <div>
                     <h2 class="text-base font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">
-                        🏷️ Type & Features
+                        🏷️ Type & Services
                     </h2>
                     <div class="space-y-4">
 
                         <div>
-                            <label for="type" class="block text-sm font-medium text-gray-700 mb-1.5">Facility Type</label>
+                            <label for="type" class="block text-sm font-medium text-gray-700 mb-1.5">Groomer Type</label>
                             <select name="type" id="type"
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm">
                                 <option value="">Unknown / Not Sure</option>
-                                <option value="Splash Pad">Splash Pad</option>
-                                <option value="Spray Park">Spray Park</option>
-                                <option value="Aquatic Center">Aquatic Center</option>
-                                <option value="Water Park">Water Park</option>
-                                <option value="Resort Water Park">Resort Water Park</option>
-                                <option value="Indoor Splash Pad">Indoor Splash Pad</option>
-                                <option value="Indoor Water Play">Indoor Water Play</option>
-                                <option value="Amusement Park">Amusement Park</option>
-                                <option value="Campground Water Park">Campground Water Park</option>
+                                <option value="Full-Service Salon">Full-Service Salon</option>
+                                <option value="Pet Spa">Pet Spa</option>
+                                <option value="Mobile Grooming">Mobile Grooming</option>
+                                <option value="Self-Service Wash">Self-Service Wash</option>
+                                <option value="Veterinary Grooming">Veterinary Grooming</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Features (check all that apply)</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Services Offered (check all that apply)</label>
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                {% for feature in ['Restrooms', 'Parking', 'Shade', 'Picnic Area', 'Playground', 'Snack Bar', 'Accessibility', 'Changing Rooms', 'Locker Rooms', 'Lifeguard on Duty', 'Concessions', 'Season Passes', 'Party Rentals'] %}
+                                {% for service in ['Full Grooming', 'Bath & Brush', 'Bath Only', 'Nail Trimming', 'Teeth Brushing', 'Deshedding', 'Ear Cleaning', 'Flea & Tick Treatment', 'Creative Grooming', 'Hand Stripping', 'Puppy First Groom', 'Cat Grooming', 'Self-Service Wash'] %}
                                 <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                                    <input type="checkbox" name="features" value="{{ feature }}"
+                                    <input type="checkbox" name="services" value="{{ service }}"
                                         class="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500">
-                                    {{ feature }}
+                                    {{ service }}
                                 </label>
                                 {% endfor %}
                             </div>
@@ -166,7 +163,7 @@
                             </label>
                             <textarea name="description" id="description" rows="4"
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-y text-sm"
-                                placeholder="Describe the facility — what kind of water features does it have, who is it best for, anything that makes it stand out?"></textarea>
+                                placeholder="Describe the groomer — what breeds do they specialize in, what makes them stand out, any certifications?"></textarea>
                         </div>
 
                     </div>
