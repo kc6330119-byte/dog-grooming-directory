@@ -205,7 +205,7 @@
 
     groomers.forEach(function(g) {
         var star = g.rating ? ' &#9733; ' + g.rating : '';
-        var popup = '<a href="/state/' + g.stateSlug + '/' + g.slug + '.html" style="font-weight:600;color:#7c3aed;text-decoration:none">' +
+        var popup = '<a href="/groomer/' + g.slug + '.html" style="font-weight:600;color:#7c3aed;text-decoration:none">' +
                     g.name + '</a><br><span style="color:#666;font-size:12px">' + g.city + star + '</span>';
         var marker = L.marker([g.lat, g.lng], {icon: purpleIcon}).bindPopup(popup);
         markers.addLayer(marker);
