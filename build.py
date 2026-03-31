@@ -160,6 +160,18 @@ def fetch_from_airtable():
             groomers.append(groomer)
 
         print(f"Fetched {len(groomers)} groomers from Airtable.")
+
+        # Disambiguate duplicate slugs by appending zip code
+        slug_groups = {}
+        for g in groomers:
+            slug_groups.setdefault(g["slug"], []).append(g)
+        for slug, group in slug_groups.items():
+            if len(group) > 1:
+                for g in group:
+                    zip_code = g.get("zip", "").strip()
+                    if zip_code:
+                        g["slug"] = f"{slug}-{slugify(zip_code)}"
+
         return groomers
 
     except Exception as e:

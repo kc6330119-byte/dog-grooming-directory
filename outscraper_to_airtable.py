@@ -279,6 +279,13 @@ output = pd.DataFrame()
 
 output["Name"] = col("name").apply(clean_field)
 output["Slug"] = df.apply(generate_slug, axis=1)
+
+# Disambiguate duplicate slugs by appending zip code
+dup_slugs = output["Slug"][output["Slug"].duplicated(keep=False)]
+for slug_val in dup_slugs.unique():
+    mask = output["Slug"] == slug_val
+    zips = col("postal_code")[mask].apply(clean_field)
+    output.loc[mask, "Slug"] = output.loc[mask, "Slug"] + "-" + zips.apply(slugify)
 output["Description"] = df.apply(combine_description, axis=1)
 output["Address"] = col("street").apply(clean_field)
 output["City"] = col("city").apply(clean_field)
