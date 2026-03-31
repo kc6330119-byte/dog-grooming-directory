@@ -141,6 +141,7 @@ def combine_description(row):
         clean_field(row.get("website_description", "")),
         clean_field(row.get("description", "")),
         clean_field(row.get("company_insights.description", "")),
+        clean_field(row.get("about", "")),
     ]
     parts = [p for p in parts if p]
     if not parts:
