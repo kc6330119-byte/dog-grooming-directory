@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .env
 .DS_Store
+Outscraper*.xlsx
+Outscraper*.csv
+*.xlsx
+data/*.csv
