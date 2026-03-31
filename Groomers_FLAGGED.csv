@@ -1,0 +1,86 @@
+Name,City,State,classification,neg_score,pos_score,flags
+Laketown Animal Hospital,Springfield,Illinois,LIKELY NOT GROOMER,7.0,4,desc:veterinary; NAME:animal hospital; desc:dental
+VCA Dover Animal Hospital,Dover,Delaware,LIKELY NOT GROOMER,7.0,0,desc:veterinarian; desc:veterinary; NAME:animal hospital
+Kennel Care Veterinary Hospital,Chandler,Arizona,LIKELY NOT GROOMER,7.0,0,NAME:veterinary; NAME_MED:kennel
+VCA All About Pets Animal Hospital,Union City,California,LIKELY NOT GROOMER,7.0,0,desc:veterinarian; desc:veterinary; NAME:animal hospital
+Mile Creek Animal Hospital,Minster,Ohio,LIKELY NOT GROOMER,6.0,0,desc:veterinary; NAME:animal hospital
+easyvet Veterinarian McKinney,McKinney,Texas,LIKELY NOT GROOMER,6.0,0,NAME:veterinarian; desc:veterinary
+Southeast Animal Hospital,San Antonio,Texas,LIKELY NOT GROOMER,5.5,0,NAME:animal hospital; desc_med:reptile
+Veterinary Healthcare Associates,Winter Haven,Florida,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Northern Pike Veterinary Hospital,Monroeville,Pennsylvania,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Mid-Atlantic Veterinary Hospital,Hagerstown,Maryland,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+CityVet | Lake Nona Veterinary & Urgent Care,Orlando,Florida,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Peconic Bay Animal Hospital,Riverhead,New York,LIKELY NOT GROOMER,5.0,6,NAME:animal hospital
+Boulevard Veterinary Care,Mt Pocono,Pennsylvania,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Gaithersburg Animal Hospital,Gaithersburg,Maryland,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Indian River Veterinary Clinic,Indian River,Michigan,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Awesome Care Veterinary and Laser Center,Oklahoma City,Oklahoma,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Grant Square Animal Hospital,Oklahoma City,Oklahoma,LIKELY NOT GROOMER,5.0,4,NAME:animal hospital
+Highland Animal Hospital,Augusta,Georgia,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Bridgewater Veterinary Hospital,Bridgewater,New Jersey,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+VCA Coral Animal Hospital,Fort Myers,Florida,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Fox Valley Veterinary Hospital,Ottawa,Illinois,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Novak Rinker Veterinary Clinic,Ottawa,Illinois,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Boca Park Animal Hospital,Las Vegas,Nevada,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Hickory Veterinary Hospital,Forest Hill,Maryland,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Spot On Veterinary Hospital & Hotel - Stamford,Stamford,Connecticut,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Orchid Springs Animal Hospital,Winter Haven,Florida,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Kindness Animal Hospital - West,Cape Coral,Florida,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Veterinary Medical Center of Indian River County,Vero Beach,Florida,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+5 Star Car Wash & Dog Wash,Colorado Springs,Colorado,LIKELY NOT GROOMER,5.0,6,NAME:car wash
+PetCoral Veterinary Hospital and Resort,Cape Coral,Florida,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Best Friends Animal Hospital and Pet Hotel,Fayetteville,Arkansas,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+VCA Miracle Mile Animal Hospital,Fort Myers,Florida,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Whiskers and Wags Animal Hospital,Chester,Virginia,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Wachusett Animal Hospital and Pet Retreat,Westminster,Massachusetts,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Spring Valley Veterinary Hospital - WEST,Springfield,Missouri,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Galloway Village Veterinary,Springfield,Missouri,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Big Easy Dog Daze & Cafe,Pittsburgh,Pennsylvania,LIKELY NOT GROOMER,5.0,0,NAME:cafe
+Friendly Paws Vet Clinic,Aberdeen,Maryland,LIKELY NOT GROOMER,5.0,2,NAME:vet clinic
+Companion Animal Hospital of Norridge,Norridge,Illinois,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+easyvet Veterinarian Overland Park,Overland Park,Kansas,LIKELY NOT GROOMER,5.0,0,NAME:veterinarian
+Quivira Crossing Veterinary Clinic,Overland Park,Kansas,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Imperial Point Animal Hospital of Delray,Delray Beach,Florida,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+VCA Riverside Veterinary Hospital,Boscawen,New Hampshire,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Stop N Go Car Wash,Larksville,Pennsylvania,LIKELY NOT GROOMER,5.0,0,NAME:car wash
+Columbia Animal Hospital,Columbia,Pennsylvania,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Sheabel Veterinary Hospital,Lexington,Kentucky,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Independence Veterinary Hospital,Virginia Beach,Virginia,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+JM Pet Resort & Veterinary Clinic,Brockton,Massachusetts,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Bostic Veterinary Hospital,Virginia Beach,Virginia,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Crystal Creek Animal Hospital,Orlando,Florida,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Golf Rose Animal Hospital,Schaumburg,Illinois,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Southwoods Animal Hospital,Greensboro,North Carolina,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Savannah Animal Hospital,Lewes,Delaware,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Animal Hospital of Bonita and Boarding,Bonita Springs,Florida,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+VCA Central Kansas Animal Hospital,South Hutchinson,Kansas,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Goodwin Animal Hospital at Atlanta Highway,Montgomery,Alabama,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Animal Hospital of Montgomery,Montgomery,Alabama,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Montgomery Veterinary Associates - Vaughn Road,Montgomery,Alabama,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Montgomery Veterinary Associates - Carter Hill Road,Montgomery,Alabama,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Veterinary Group of Chesterfield,Chesterfield,Missouri,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+VCA Abbott Animal Hospital,Worcester,Massachusetts,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+County Seat Veterinary Hospital,Princeton,Indiana,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Greenbrier Veterinary Clinic,Bel Air,Maryland,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Cat Nap Inn,Fort Myers,Florida,REVIEW NEEDED,3.0,0,desc:veterinarian; desc:veterinary; desc:animal hospital
+All Dogs Unleashed Dog Training Dallas,Dallas,Texas,REVIEW NEEDED,2.5,0,NAME_MED:dog training; desc_med:obedience
+Feeders Pet Supply Pet Wash,Lansing,Michigan,REVIEW NEEDED,2.0,2,NAME_MED:pet supply
+P & D Pet Supply,Mountain Top,Pennsylvania,REVIEW NEEDED,2.0,0,NAME_MED:pet supply
+sit-stay-play In-home pet sitting & more.inc,Muncie,Indiana,REVIEW NEEDED,2.0,0,NAME_MED:pet sitting
+Under One Ruff,Cleburne,Texas,REVIEW NEEDED,2.0,0,desc:tattoo; desc:piercing
+The Grubby Pup/Superior Puppy Obedience Training LLC,Alanson,Michigan,REVIEW NEEDED,2.0,2,NAME_MED:obedience
+Yarn & Bone Pet Supply Company,Camden,Delaware,REVIEW NEEDED,2.0,0,NAME_MED:pet supply
+"AnimaliA Natural Pet Food, Supplements And Supplies",Woodland Hills,California,REVIEW NEEDED,2.0,0,NAME_MED:pet food
+Oak Grove Kennel,Monmouth,Oregon,REVIEW NEEDED,2.0,0,NAME_MED:kennel
+Suggs Kennel Inc,Augusta,Georgia,REVIEW NEEDED,2.0,0,NAME_MED:kennel
+Luxury Pet by G Inc,Hampton Bays,New York,REVIEW NEEDED,2.0,0,desc:tattoo; desc:piercing
+Luke & Company Fine Pet Supply & Outfitter,Denver,Colorado,REVIEW NEEDED,2.0,0,NAME_MED:pet supply
+Bonita Boarding Kennel and Pet Camp,Bonita Springs,Florida,REVIEW NEEDED,2.0,0,NAME_MED:kennel
+1of1kennel,Tacoma,Washington,REVIEW NEEDED,2.0,0,NAME_MED:kennel
+Hunt Club Boarding Kennel and Cattery,Virginia Beach,Virginia,REVIEW NEEDED,2.0,0,NAME_MED:kennel
+Care-A-Lot Pet Supply Indian River,Virginia Beach,Virginia,REVIEW NEEDED,2.0,0,NAME_MED:pet supply
+Positive Approach Dog Training & Daycare,Tacoma,Washington,REVIEW NEEDED,2.0,0,NAME_MED:dog training
+Winding Road Kennel Inc,Parkersburg,West Virginia,REVIEW NEEDED,2.0,0,NAME_MED:kennel
+Village Pet Spa & Kennel,Wallingford,Connecticut,REVIEW NEEDED,2.0,2,NAME_MED:kennel
+Kennel Des Les Anges,Waynesville,Ohio,REVIEW NEEDED,2.0,0,NAME_MED:kennel
+Paws & Claws,Billings,Montana,REVIEW NEEDED,2.0,2,desc:spay; desc:neuter
