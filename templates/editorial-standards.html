@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Editorial Standards</h1>
+        <p class="text-gray-500 mb-8">How we research, verify, and maintain the quality of information on {{ site_name }}</p>
+
+        <div class="prose-content space-y-6 text-gray-600 leading-relaxed">
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Our Commitment</h2>
+                <p>
+                    Dog Groomer Locator is committed to providing accurate, helpful, and trustworthy information
+                    to dog owners seeking professional grooming services. Every listing and piece of editorial
+                    content on this site goes through a research and verification process before publication.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">How We Source Listings</h2>
+                <p class="mb-4">
+                    Groomer listings are compiled from multiple publicly available sources, including:
+                </p>
+                <ul class="space-y-2 ml-4 list-disc">
+                    <li>Google Business Profiles and Google Maps data</li>
+                    <li>State and local business registrations</li>
+                    <li>Professional grooming association directories</li>
+                    <li>User submissions (verified before publication)</li>
+                </ul>
+                <p class="mt-4">
+                    We cross-reference multiple sources to verify business names, addresses, phone numbers, and
+                    operating hours. Listings that cannot be verified through at least two independent sources
+                    are held for manual review before publication.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Editorial Content</h2>
+                <p class="mb-4">
+                    Blog posts and guides on Dog Groomer Locator are written by authors with relevant
+                    credentials in pet care, grooming, or veterinary science. Each article includes:
+                </p>
+                <ul class="space-y-2 ml-4 list-disc">
+                    <li>Author attribution with professional credentials</li>
+                    <li>Publication and last-updated dates</li>
+                    <li>Information sourced from professional grooming standards and veterinary guidelines</li>
+                    <li>Clear distinction between factual information and editorial opinion</li>
+                </ul>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Update Frequency</h2>
+                <p>
+                    We review and update groomer listings on a rolling basis. Business information can change
+                    without notice — hours, services, and pricing are particularly subject to change. We
+                    encourage users to verify details directly with the grooming business before visiting.
+                    If you notice outdated or incorrect information, please
+                    <a href="/contact.html" class="text-violet-600 hover:text-violet-700 font-medium">let us know</a>
+                    so we can correct it promptly.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Independence</h2>
+                <p>
+                    Our listings and editorial recommendations are independent. Grooming businesses cannot pay
+                    for placement, higher rankings, or favorable reviews in our directory. Advertising and
+                    affiliate relationships are clearly disclosed and do not influence our editorial decisions
+                    or the order in which listings appear.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Corrections Policy</h2>
+                <p>
+                    We take accuracy seriously. If we publish incorrect information — whether in a listing or
+                    an editorial article — we correct it as quickly as possible. Corrections are made directly
+                    in the content. If the error was significant, we note the correction at the bottom of the
+                    affected page. To report an error, use our
+                    <a href="/contact.html" class="text-violet-600 hover:text-violet-700 font-medium">contact form</a>.
+                </p>
+            </div>
+
+            <div class="bg-violet-50 border border-violet-100 rounded-xl p-6 text-center">
+                <p class="text-violet-800 text-sm">
+                    Questions about our editorial process? <a href="/contact.html" class="font-semibold hover:text-violet-900">Contact us</a>.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

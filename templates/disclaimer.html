@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Disclaimer</h1>
+        <p class="text-gray-500 mb-8">Last updated: {{ current_year }}</p>
+
+        <div class="prose-content space-y-6 text-gray-600 leading-relaxed">
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">General Information</h2>
+                <p>
+                    The information provided on Dog Groomer Locator (doggroomerlocator.com) is for general
+                    informational purposes only. All information on the site is provided in good faith; however,
+                    we make no representation or warranty of any kind, express or implied, regarding the accuracy,
+                    adequacy, validity, reliability, availability, or completeness of any information on the site.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Not Professional Advice</h2>
+                <p>
+                    The site does not provide veterinary, medical, or professional pet care advice. The content
+                    on this site, including blog posts and groomer listings, is not intended to be a substitute
+                    for professional veterinary advice, diagnosis, or treatment. Always seek the advice of your
+                    veterinarian or other qualified animal health provider with any questions you may have
+                    regarding your pet's care, health conditions, or grooming needs.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Groomer Listings</h2>
+                <p class="mb-4">
+                    Dog Groomer Locator provides a directory of grooming businesses for informational purposes.
+                    Listing a groomer on this site does not constitute an endorsement, recommendation, or guarantee
+                    of the quality, safety, or reliability of their services. We do not employ, supervise, or
+                    control the groomers listed in our directory.
+                </p>
+                <p>
+                    Business information — including hours, services, pricing, and contact details — is collected
+                    from publicly available sources and may change without notice. We encourage users to verify all
+                    details directly with the grooming business before scheduling an appointment.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">External Links</h2>
+                <p>
+                    The site may contain links to external websites that are not provided or maintained by us.
+                    We do not guarantee the accuracy, relevance, timeliness, or completeness of any information
+                    on these external websites.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Affiliate Disclosure</h2>
+                <p>
+                    Some links on this site may be affiliate links. We may earn a small commission if you
+                    purchase products or services through these links, at no additional cost to you. This helps
+                    us maintain and improve the directory. Our editorial content and groomer listings are always
+                    independent and are not influenced by affiliate relationships.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Limitation of Liability</h2>
+                <p>
+                    Under no circumstances shall Dog Groomer Locator be liable for any direct, indirect,
+                    incidental, special, consequential, or punitive damages arising from your use of the site
+                    or reliance on any information provided herein, including but not limited to damages related
+                    to services received from listed grooming businesses.
+                </p>
+            </div>
+
+            <div class="bg-violet-50 border border-violet-100 rounded-xl p-6 text-center">
+                <p class="text-violet-800 text-sm">
+                    Questions about this disclaimer? <a href="/contact.html" class="font-semibold hover:text-violet-900">Contact us</a>.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

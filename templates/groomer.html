@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+{% autoescape false %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": {{ (site_url ~ "/") | tojson }}
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": {{ groomer.state | tojson }},
+            "item": {{ (site_url ~ "/state/" ~ groomer.state_slug ~ ".html") | tojson }}
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": {{ groomer.name | tojson }}
+        }
+    ]
+}
+</script>
+{% endautoescape %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<div class="bg-white border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <nav class="flex text-sm text-gray-500" aria-label="Breadcrumb">
+            <a href="/" class="hover:text-violet-600">Home</a>
+            <span class="mx-2">/</span>
+            <a href="/state/{{ groomer.state_slug }}.html" class="hover:text-violet-600">{{ groomer.state }}</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-900 font-medium">{{ groomer.name }}</span>
+        </nav>
+    </div>
+</div>
+
+<!-- Hero Photo -->
+<div class="w-full h-64 md:h-80 bg-violet-100 overflow-hidden">
+    {% if groomer.photo_url %}
+    <img src="{{ groomer.photo_url }}" alt="{{ groomer.name }}"
+         class="w-full h-full object-cover"
+         referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div style="display:none" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-200 to-purple-300">
+        <span class="text-8xl opacity-30">🐕</span>
+    </div>
+    {% else %}
+    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-200 to-purple-300">
+        <span class="text-8xl opacity-30">🐕</span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="lg:grid lg:grid-cols-3 lg:gap-10">
+
+        <!-- Left: Main Info -->
+        <div class="lg:col-span-2">
+
+            <!-- Title + Badges -->
+            <div class="mb-6">
+                <div class="flex flex-wrap gap-2 mb-3">
+                    {% if groomer.type %}
+                    <span class="text-xs font-medium bg-violet-100 text-violet-800 px-3 py-1 rounded-full">{{ groomer.type }}</span>
+                    {% endif %}
+                    {% if groomer.price_range %}
+                    <span class="text-xs font-medium px-3 py-1 rounded-full
+                        {% if groomer.price_range == '$' %}bg-green-100 text-green-800
+                        {% elif groomer.price_range == '$$' %}bg-blue-100 text-blue-800
+                        {% elif groomer.price_range == '$$$' %}bg-amber-100 text-amber-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ groomer.price_range }}
+                    </span>
+                    {% endif %}
+                    {% if groomer.status == 'Featured' %}
+                    <span class="text-xs font-medium bg-violet-600 text-white px-3 py-1 rounded-full">Featured</span>
+                    {% endif %}
+                </div>
+
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ groomer.name }}</h1>
+
+                <p class="text-lg text-gray-600">
+                    <a href="/state/{{ groomer.state_slug }}.html" class="hover:text-violet-600">{{ groomer.city }}, {{ groomer.state }}</a>
+                    {% if groomer.zip %} {{ groomer.zip }}{% endif %}
+                </p>
+
+                {% if groomer.rating %}
+                <div class="flex items-center gap-2 mt-3">
+                    <div class="flex text-yellow-400 text-lg">
+                        {% for i in range(5) %}
+                        {% if i < groomer.rating|int %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="font-semibold text-gray-700">{{ groomer.rating }}</span>
+                    {% if groomer.review_count %}
+                    <span class="text-gray-500 text-sm">({{ groomer.review_count }} reviews)</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            {% if groomer.description %}
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-900 mb-3">About This Groomer</h2>
+                <p class="text-gray-600 leading-relaxed">{{ groomer.description }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Details Grid -->
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Details</h2>
+                <div class="bg-white border border-gray-100 rounded-xl overflow-hidden">
+                    <table class="w-full text-sm">
+                        {% if groomer.hours %}
+                        <tr class="border-b border-gray-50">
+                            <td class="py-3 px-4 text-gray-500 font-medium w-32">Hours</td>
+                            <td class="py-3 px-4 text-gray-800">{{ groomer.hours }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if groomer.price_range %}
+                        <tr class="border-b border-gray-50">
+                            <td class="py-3 px-4 text-gray-500 font-medium">Price Range</td>
+                            <td class="py-3 px-4 text-gray-800">{{ groomer.price_range }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if groomer.specialties %}
+                        <tr class="border-b border-gray-50">
+                            <td class="py-3 px-4 text-gray-500 font-medium">Specialties</td>
+                            <td class="py-3 px-4 text-gray-800">{{ groomer.specialties | join(', ') }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if groomer.type %}
+                        <tr class="border-b border-gray-50">
+                            <td class="py-3 px-4 text-gray-500 font-medium">Type</td>
+                            <td class="py-3 px-4 text-gray-800">{{ groomer.type }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if groomer.address %}
+                        <tr>
+                            <td class="py-3 px-4 text-gray-500 font-medium">Address</td>
+                            <td class="py-3 px-4 text-gray-800">{{ groomer.address }}, {{ groomer.city }}, {{ groomer.state }} {{ groomer.zip }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+
+            <!-- Services -->
+            {% if groomer.services %}
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-900 mb-3">Services Offered</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% for service in groomer.services %}
+                    <span class="inline-flex items-center gap-1.5 text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full">
+                        {% if service == 'Full Grooming' %}✂️
+                        {% elif service == 'Bath & Brush' %}🛁
+                        {% elif service == 'Bath Only' %}🛁
+                        {% elif service == 'Nail Trimming' %}💅
+                        {% elif service == 'Deshedding' %}🪮
+                        {% elif service == 'Teeth Brushing' %}🦷
+                        {% elif service == 'Ear Cleaning' %}👂
+                        {% elif service == 'Flea Treatment' %}🛡️
+                        {% elif service == 'Creative Grooming' %}🎨
+                        {% elif service == 'Cat Grooming' %}🐱
+                        {% elif service == 'Puppy First Groom' %}🐶
+                        {% elif service == 'Self-Service Wash' %}🚿
+                        {% else %}✓{% endif %}
+                        {{ service }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Right: Sidebar -->
+        <div class="mt-8 lg:mt-0">
+            <!-- Action Buttons -->
+            <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-6">
+                <h3 class="font-semibold text-gray-900 mb-4">Book an Appointment</h3>
+
+                {% if groomer.google_maps_url %}
+                <a href="{{ groomer.google_maps_url }}" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center justify-center gap-2 w-full py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg transition-colors mb-3">
+                    Get Directions
+                </a>
+                {% endif %}
+
+                {% if groomer.website_url %}
+                <a href="{{ groomer.website_url }}" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center justify-center gap-2 w-full py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-lg border border-gray-200 transition-colors mb-3">
+                    Official Website
+                </a>
+                {% endif %}
+
+                {% if groomer.phone %}
+                <a href="tel:{{ groomer.phone }}"
+                   class="flex items-center justify-center gap-2 w-full py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-lg border border-gray-200 transition-colors">
+                    {{ groomer.phone }}
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Quick Info Card -->
+            <div class="bg-violet-50 border border-violet-100 rounded-xl p-5 mb-6">
+                <h3 class="font-semibold text-violet-900 mb-3">Quick Info</h3>
+                <dl class="space-y-2 text-sm">
+                    {% if groomer.price_range %}
+                    <div class="flex justify-between">
+                        <dt class="text-violet-700">Price Range</dt>
+                        <dd class="font-medium text-violet-900">{{ groomer.price_range }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if groomer.type %}
+                    <div class="flex justify-between">
+                        <dt class="text-violet-700">Type</dt>
+                        <dd class="font-medium text-violet-900">{{ groomer.type }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if groomer.hours %}
+                    <div class="flex justify-between">
+                        <dt class="text-violet-700">Hours</dt>
+                        <dd class="font-medium text-violet-900 text-right max-w-[60%]">{{ groomer.hours }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+
+            <!-- Things Nearby -->
+            {% if groomer.latitude and groomer.longitude %}
+            <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-6">
+                <h3 class="font-semibold text-gray-900 mb-4">Things Nearby</h3>
+                <div class="space-y-2">
+                    <a href="https://www.google.com/maps/search/pet+store/@{{ groomer.latitude }},{{ groomer.longitude }},14z"
+                       target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 w-full py-2.5 px-3 bg-gray-50 hover:bg-violet-50 hover:text-violet-700 text-gray-700 text-sm font-medium rounded-lg border border-gray-100 transition-colors">
+                        🐾 Pet Stores
+                    </a>
+                    <a href="https://www.google.com/maps/search/veterinarian/@{{ groomer.latitude }},{{ groomer.longitude }},14z"
+                       target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 w-full py-2.5 px-3 bg-gray-50 hover:bg-violet-50 hover:text-violet-700 text-gray-700 text-sm font-medium rounded-lg border border-gray-100 transition-colors">
+                        🏥 Veterinarians
+                    </a>
+                    <a href="https://www.google.com/maps/search/dog+park/@{{ groomer.latitude }},{{ groomer.longitude }},14z"
+                       target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 w-full py-2.5 px-3 bg-gray-50 hover:bg-violet-50 hover:text-violet-700 text-gray-700 text-sm font-medium rounded-lg border border-gray-100 transition-colors">
+                        🌳 Dog Parks
+                    </a>
+                    <a href="https://www.google.com/maps/search/coffee+shop/@{{ groomer.latitude }},{{ groomer.longitude }},14z"
+                       target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 w-full py-2.5 px-3 bg-gray-50 hover:bg-violet-50 hover:text-violet-700 text-gray-700 text-sm font-medium rounded-lg border border-gray-100 transition-colors">
+                        ☕ Coffee Shops
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Share -->
+            <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-6">
+                <h3 class="font-semibold text-gray-900 mb-3">Share This Groomer</h3>
+                <div class="flex gap-2">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ site_url }}/groomer/{{ groomer.slug }}.html"
+                       target="_blank" rel="noopener noreferrer" title="Share on Facebook"
+                       class="p-2 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 text-gray-400 rounded-lg border border-gray-100 transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url={{ site_url }}/groomer/{{ groomer.slug }}.html&text={{ groomer.name | urlencode }}%20-%20{{ groomer.city | urlencode }}%2C%20{{ groomer.state | urlencode }}"
+                       target="_blank" rel="noopener noreferrer" title="Share on X"
+                       class="p-2 bg-gray-50 hover:bg-gray-200 hover:text-black text-gray-400 rounded-lg border border-gray-100 transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <a href="mailto:?subject={{ groomer.name | urlencode }}&body=Check out {{ groomer.name | urlencode }} in {{ groomer.city | urlencode }}%2C {{ groomer.state | urlencode }}: {{ site_url }}/groomer/{{ groomer.slug }}.html"
+                       title="Share via Email"
+                       class="p-2 bg-gray-50 hover:bg-violet-50 hover:text-violet-700 text-gray-400 rounded-lg border border-gray-100 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Suggest an Edit -->
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
+                <p class="text-sm text-gray-600 mb-2">Is something incorrect or outdated?</p>
+                <a href="/contact.html" class="text-sm text-violet-600 hover:text-violet-700 font-medium">Suggest a correction</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Related Groomers -->
+    {% if related_groomers %}
+    <div class="mt-12 border-t border-gray-100 pt-10">
+        <h2 class="text-xl font-bold text-gray-900 mb-6">More Dog Groomers in {{ groomer.state }}</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for groomer in related_groomers %}
+            {% include '_groomer_card.html' %}
+            {% endfor %}
+        </div>
+        <div class="text-center mt-8">
+            <a href="/state/{{ groomer.state_slug }}.html"
+               class="inline-block px-6 py-3 border border-violet-600 text-violet-600 hover:bg-violet-600 hover:text-white font-semibold rounded-lg transition-colors">
+                View All Dog Groomers in {{ groomer.state }}
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Structured Data: LocalBusiness -->
+{% autoescape false %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": {{ groomer.name | tojson }},
+    "description": {{ groomer.description | tojson }},
+    {% if groomer.photo_url %}
+    "image": {{ groomer.photo_url | tojson }},
+    {% endif %}
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": {{ groomer.address | tojson }},
+        "addressLocality": {{ groomer.city | tojson }},
+        "addressRegion": {{ groomer.state | tojson }},
+        "postalCode": {{ groomer.zip | tojson }},
+        "addressCountry": "US"
+    },
+    {% if groomer.phone %}
+    "telephone": {{ groomer.phone | tojson }},
+    {% endif %}
+    {% if groomer.website_url %}
+    "url": {{ groomer.website_url | tojson }},
+    {% endif %}
+    {% if groomer.google_maps_url %}
+    "hasMap": {{ groomer.google_maps_url | tojson }},
+    {% endif %}
+    {% if groomer.rating and groomer.review_count %}
+    "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": {{ groomer.rating }},
+        "reviewCount": {{ groomer.review_count }}
+    },
+    {% endif %}
+    "openingHours": {{ groomer.hours | tojson }},
+    "priceRange": {{ groomer.price_range | tojson }}
+}
+</script>
+{% endautoescape %}
+
+{% endblock %}

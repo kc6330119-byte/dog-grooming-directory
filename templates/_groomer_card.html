@@ -1,0 +1,77 @@
+<!-- Reusable groomer card — expects 'groomer' variable in context -->
+<div class="listing-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col" data-type="{{ groomer.type }}" data-state="{{ groomer.state }}">
+
+    <!-- Photo -->
+    <div class="h-48 bg-violet-50 overflow-hidden relative flex-shrink-0">
+        {% if groomer.photo_url %}
+        <img src="{{ groomer.photo_url }}" alt="{{ groomer.name }}"
+             class="w-full h-full object-cover" loading="lazy"
+             referrerpolicy="no-referrer"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div style="display:none" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-purple-200">
+            <span class="text-6xl opacity-30">🐕</span>
+        </div>
+        {% else %}
+        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-purple-200">
+            <span class="text-6xl opacity-30">🐕</span>
+        </div>
+        {% endif %}
+
+        <!-- Price range badge -->
+        {% if groomer.price_range %}
+        <span class="absolute top-2 right-2 text-xs font-semibold px-2 py-1 rounded-full shadow-sm
+            {% if groomer.price_range == '$' %}bg-green-100 text-green-800
+            {% elif groomer.price_range == '$$' %}bg-amber-100 text-amber-800
+            {% elif groomer.price_range == '$$$' %}bg-rose-100 text-rose-800
+            {% else %}bg-blue-100 text-blue-800{% endif %}">
+            {% if groomer.price_range == '$' %}Budget-Friendly
+            {% elif groomer.price_range == '$$' %}Mid-Range
+            {% elif groomer.price_range == '$$$' %}Premium
+            {% else %}{{ groomer.price_range }}{% endif %}
+        </span>
+        {% endif %}
+
+        <!-- Featured badge -->
+        {% if groomer.status == 'Featured' %}
+        <span class="absolute top-2 left-2 text-xs font-semibold px-2 py-1 rounded-full bg-violet-600 text-white shadow-sm">
+            ⭐ Featured
+        </span>
+        {% endif %}
+    </div>
+
+    <!-- Content -->
+    <div class="p-4 flex flex-col flex-grow">
+        <h3 class="font-semibold text-gray-900 leading-tight mb-1">
+            <a href="/groomer/{{ groomer.slug }}.html" class="hover:text-violet-600 transition-colors line-clamp-2">{{ groomer.name }}</a>
+        </h3>
+
+        <p class="text-sm text-gray-500 mb-2">
+            📍 <a href="/state/{{ groomer.state_slug }}.html" class="hover:text-violet-600">{{ groomer.city }}, {{ groomer.state }}</a>
+        </p>
+
+        {% if groomer.rating %}
+        <div class="flex items-center gap-1 mb-2">
+            <span class="text-yellow-400 text-sm">★</span>
+            <span class="text-xs text-gray-600 font-medium">{{ groomer.rating }}</span>
+            {% if groomer.review_count %}
+            <span class="text-xs text-gray-400">({{ groomer.review_count }} reviews)</span>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if groomer.hours %}
+        <p class="text-xs text-gray-500 mb-2 truncate">🕐 {{ groomer.hours }}</p>
+        {% endif %}
+
+        <div class="mt-auto">
+            {% if groomer.type %}
+            <span class="inline-block text-xs bg-violet-50 text-violet-700 px-2 py-0.5 rounded-full border border-violet-200 mb-3">{{ groomer.type }}</span>
+            {% endif %}
+
+            <a href="/groomer/{{ groomer.slug }}.html"
+               class="block text-center text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 py-2 px-4 rounded-lg transition-colors">
+                View Details
+            </a>
+        </div>
+    </div>
+</div>

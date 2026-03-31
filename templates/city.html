@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+{% autoescape false %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": {{ (site_url ~ "/") | tojson }}
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": {{ state.name | tojson }},
+            "item": {{ (site_url ~ "/state/" ~ state.slug ~ ".html") | tojson }}
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": {{ city | tojson }}
+        }
+    ]
+}
+</script>
+{% endautoescape %}
+{% endblock %}
+
+{% block content %}
+
+<!-- City Header -->
+<section class="bg-gradient-to-r from-violet-600 to-purple-700 text-white py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="text-sm text-violet-200 mb-3">
+            <a href="/" class="hover:text-white">Home</a>
+            <span class="mx-2">/</span>
+            <a href="/state/{{ state.slug }}.html" class="hover:text-white">{{ state.name }}</a>
+            <span class="mx-2">/</span>
+            <span>{{ city }}</span>
+        </nav>
+        <h1 class="text-3xl md:text-4xl font-bold mb-2">
+            Dog Groomers in {{ city }}, {{ state.name }}
+        </h1>
+        <p class="text-violet-100 text-lg">
+            {% if groomers %}
+            {{ groomers | length }} groomer{% if groomers | length != 1 %}s{% endif %} found
+            {% else %}
+            Browse dog groomers in {{ city }}
+            {% endif %}
+        </p>
+    </div>
+</section>
+
+{% if city_intro %}
+<div class="bg-gray-50 border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <p class="text-gray-600 leading-relaxed max-w-4xl">{{ city_intro }}</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Listings -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    {% if groomers %}
+    <div id="groomer-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for groomer in groomers %}
+        {% include '_groomer_card.html' %}
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="text-center py-20">
+        <span class="text-6xl">🐕</span>
+        <h2 class="text-xl font-semibold text-gray-900 mt-6 mb-2">No listings yet in {{ city }}</h2>
+        <p class="text-gray-500 mb-8 max-w-md mx-auto">
+            We're working on adding groomers in {{ city }}. Know of one? Help us grow the directory!
+        </p>
+        <a href="/submit.html"
+           class="inline-block px-6 py-3 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 transition-colors">
+            Submit a Groomer
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Back to State -->
+<section class="bg-gray-50 border-t py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <a href="/state/{{ state.slug }}.html"
+           class="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors">
+            ← All Dog Groomers in {{ state.name }}
+        </a>
+    </div>
+</section>
+
+{% endblock %}

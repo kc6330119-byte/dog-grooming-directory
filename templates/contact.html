@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Contact Us</h1>
+
+        <div class="space-y-6">
+
+            <!-- Contact Form -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8" id="contact">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">Get in Touch</h2>
+                <p class="text-gray-600 mb-6">
+                    Have a question, suggestion, or feedback? We'd love to hear from you.
+                </p>
+
+                <form id="contact-form" name="contact" method="POST" action="/contact.html"
+                      data-netlify="true" netlify-honeypot="bot-field" class="space-y-5">
+                    <input type="hidden" name="form-name" value="contact">
+                    <p class="hidden">
+                        <label>Don't fill this out if you're human: <input name="bot-field"></label>
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1.5">Name</label>
+                            <input type="text" name="name" id="name" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors text-sm">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                            <input type="email" name="email" id="email" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-1.5">Subject</label>
+                        <select name="subject" id="subject" required
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors text-sm">
+                            <option value="">Select a topic...</option>
+                            <option value="general">General Inquiry</option>
+                            <option value="submit-listing">Submit a Dog Groomer Listing</option>
+                            <option value="report-issue">Report Incorrect Information</option>
+                            <option value="business">Business / Partnership Inquiry</option>
+                            <option value="feedback">Feedback</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700 mb-1.5">Message</label>
+                        <textarea name="message" id="message" rows="5" required
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors resize-y text-sm"
+                            placeholder="How can we help you?"></textarea>
+                    </div>
+
+                    <div>
+                        <button type="submit" id="submit-btn"
+                            class="px-8 py-3 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 transition-colors text-sm">
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Submit a Listing -->
+            <div class="bg-violet-50 border border-violet-100 rounded-xl p-8" id="submit">
+                <h2 class="text-xl font-semibold text-violet-900 mb-3">🐕 Submit a Dog Groomer</h2>
+                <p class="text-violet-800 leading-relaxed mb-5">
+                    Know of a dog groomer, grooming salon, or mobile pet groomer that's not in our directory?
+                    Use our dedicated submission form — it only takes a couple of minutes and helps
+                    pet owners across the country find great groomers.
+                </p>
+                <a href="/submit.html"
+                   class="inline-block px-6 py-3 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 transition-colors text-sm">
+                    Submit a Dog Groomer →
+                </a>
+            </div>
+
+            <!-- Report an Issue -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Report Incorrect Info</h2>
+                <p class="text-gray-600 leading-relaxed">
+                    Found incorrect hours, a closed groomer, or wrong details? Please let us know
+                    using the form above with the subject <strong>"Report Incorrect Information"</strong>.
+                    We'll update the listing as quickly as possible.
+                </p>
+            </div>
+
+            <!-- Business -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Business Inquiries</h2>
+                <p class="text-gray-600 leading-relaxed">
+                    Interested in a featured listing, advertising, or partnership? Reach out via the
+                    contact form with <strong>"Business / Partnership Inquiry"</strong> in the subject.
+                </p>
+            </div>
+
+            <!-- Response Time -->
+            <div class="bg-violet-50 border border-violet-100 rounded-xl p-6 text-center">
+                <p class="text-violet-800 text-sm">
+                    We aim to respond to all inquiries within <strong>2–3 business days</strong>. Thank you for your patience!
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<script>
+document.getElementById('contact-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const btn = document.getElementById('submit-btn');
+    const originalText = btn.textContent;
+
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    try {
+        const formData = new FormData(form);
+        const response = await fetch('/contact.html', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formData).toString()
+        });
+
+        if (response.ok) {
+            window.location.href = '/success/index.html';
+        } else {
+            throw new Error('Form submission failed');
+        }
+    } catch (error) {
+        alert('There was an error sending your message. Please try again.');
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+});
+</script>
+{% endblock %}

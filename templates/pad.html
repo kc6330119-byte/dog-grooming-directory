@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+{% autoescape false %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": {{ (site_url ~ "/") | tojson }}
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": {{ pad.state | tojson }},
+            "item": {{ (site_url ~ "/state/" ~ pad.state_slug ~ ".html") | tojson }}
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": {{ pad.name | tojson }}
+        }
+    ]
+}
+</script>
+{% endautoescape %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<div class="bg-white border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <nav class="flex text-sm text-gray-500" aria-label="Breadcrumb">
+            <a href="/" class="hover:text-cyan-600">Home</a>
+            <span class="mx-2">/</span>
+            <a href="/state/{{ pad.state_slug }}.html" class="hover:text-cyan-600">{{ pad.state }}</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-900 font-medium">{{ pad.name }}</span>
+        </nav>
+    </div>
+</div>
+
+<!-- Hero Photo -->
+<div class="w-full h-64 md:h-80 bg-cyan-100 overflow-hidden">
+    {% if pad.photo_url %}
+    <img src="{{ pad.photo_url }}" alt="{{ pad.name }}"
+         class="w-full h-full object-cover"
+         referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div style="display:none" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-200 to-sky-300">
+        <span class="text-8xl opacity-30">💧</span>
+    </div>
+    {% else %}
+    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-200 to-sky-300">
+        <span class="text-8xl opacity-30">💧</span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="lg:grid lg:grid-cols-3 lg:gap-10">
+
+        <!-- Left: Main Info -->
+        <div class="lg:col-span-2">
+
+            <!-- Title + Badges -->
+            <div class="mb-6">
+                <div class="flex flex-wrap gap-2 mb-3">
+                    {% if pad.type %}
+                    <span class="text-xs font-medium bg-cyan-100 text-cyan-800 px-3 py-1 rounded-full">{{ pad.type }}</span>
+                    {% endif %}
+                    {% if pad.admission %}
+                    <span class="text-xs font-medium px-3 py-1 rounded-full
+                        {% if pad.admission == 'Free' %}bg-green-100 text-green-800
+                        {% elif pad.admission == 'Paid' %}bg-amber-100 text-amber-800
+                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ pad.admission }}{% if pad.price and pad.price != '$0' %} · {{ pad.price }}{% endif %}
+                    </span>
+                    {% endif %}
+                    {% if pad.status == 'Featured' %}
+                    <span class="text-xs font-medium bg-cyan-600 text-white px-3 py-1 rounded-full">⭐ Featured</span>
+                    {% endif %}
+                </div>
+
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ pad.name }}</h1>
+
+                <p class="text-lg text-gray-600">
+                    📍
+                    <a href="/state/{{ pad.state_slug }}.html" class="hover:text-cyan-600">{{ pad.city }}, {{ pad.state }}</a>
+                    {% if pad.zip %} {{ pad.zip }}{% endif %}
+                </p>
+
+                {% if pad.rating %}
+                <div class="flex items-center gap-2 mt-3">
+                    <div class="flex text-yellow-400 text-lg">
+                        {% for i in range(5) %}
+                        {% if i < pad.rating|int %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="font-semibold text-gray-700">{{ pad.rating }}</span>
+                    {% if pad.review_count %}
+                    <span class="text-gray-500 text-sm">({{ pad.review_count }} reviews)</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            {% if pad.description %}
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-900 mb-3">About This Splash Pad</h2>
+                <p class="text-gray-600 leading-relaxed">{{ pad.description }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Details Grid -->
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Details</h2>
+                <div class="bg-white border border-gray-100 rounded-xl overflow-hidden">
+                    <table class="w-full text-sm">
+                        {% if pad.hours %}
+                        <tr class="border-b border-gray-50">
+                            <td class="py-3 px-4 text-gray-500 font-medium w-32">Hours</td>
+                            <td class="py-3 px-4 text-gray-800">{{ pad.hours }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if pad.season %}
+                        <tr class="border-b border-gray-50">
+                            <td class="py-3 px-4 text-gray-500 font-medium">Season</td>
+                            <td class="py-3 px-4 text-gray-800">{{ pad.season }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if pad.admission %}
+                        <tr class="border-b border-gray-50">
+                            <td class="py-3 px-4 text-gray-500 font-medium">Admission</td>
+                            <td class="py-3 px-4 text-gray-800">
+                                {{ pad.admission }}{% if pad.price %} — {{ pad.price }}{% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% if pad.age_range %}
+                        <tr class="border-b border-gray-50">
+                            <td class="py-3 px-4 text-gray-500 font-medium">Age Range</td>
+                            <td class="py-3 px-4 text-gray-800">{{ pad.age_range | join(', ') }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if pad.type %}
+                        <tr class="border-b border-gray-50">
+                            <td class="py-3 px-4 text-gray-500 font-medium">Type</td>
+                            <td class="py-3 px-4 text-gray-800">{{ pad.type }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if pad.address %}
+                        <tr>
+                            <td class="py-3 px-4 text-gray-500 font-medium">Address</td>
+                            <td class="py-3 px-4 text-gray-800">{{ pad.address }}, {{ pad.city }}, {{ pad.state }} {{ pad.zip }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+
+            <!-- Features / Amenities -->
+            {% if pad.features %}
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-900 mb-3">Amenities</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% for feature in pad.features %}
+                    <span class="inline-flex items-center gap-1.5 text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full">
+                        {% if feature == 'Restrooms' %}🚻
+                        {% elif feature == 'Shade' %}⛱️
+                        {% elif feature == 'Parking' %}🅿️
+                        {% elif feature == 'Picnic Area' %}🧺
+                        {% elif feature == 'Playground' %}🛝
+                        {% elif feature == 'Snack Bar' %}🍦
+                        {% elif feature == 'Accessibility' %}♿
+                        {% elif feature == 'Changing Rooms' %}👗
+                        {% elif feature == 'Locker Rooms' %}🔒
+                        {% elif feature == 'Lifeguard on Duty' %}🛟
+                        {% elif feature == 'Season Passes' %}🎫
+                        {% elif feature == 'Party Rentals' %}🎉
+                        {% elif feature == 'Concessions' %}🍔
+                        {% else %}✓{% endif %}
+                        {{ feature }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Right: Sidebar -->
+        <div class="mt-8 lg:mt-0">
+            <!-- Action Buttons -->
+            <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-6">
+                <h3 class="font-semibold text-gray-900 mb-4">Plan Your Visit</h3>
+
+                {% if pad.google_maps_url %}
+                <a href="{{ pad.google_maps_url }}" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center justify-center gap-2 w-full py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-lg transition-colors mb-3">
+                    🗺️ Get Directions
+                </a>
+                {% endif %}
+
+                {% if pad.website_url %}
+                <a href="{{ pad.website_url }}" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center justify-center gap-2 w-full py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-lg border border-gray-200 transition-colors mb-3">
+                    🌐 Official Website
+                </a>
+                {% endif %}
+
+                {% if pad.phone %}
+                <a href="tel:{{ pad.phone }}"
+                   class="flex items-center justify-center gap-2 w-full py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-lg border border-gray-200 transition-colors">
+                    📞 {{ pad.phone }}
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Quick Info Card -->
+            <div class="bg-cyan-50 border border-cyan-100 rounded-xl p-5 mb-6">
+                <h3 class="font-semibold text-cyan-900 mb-3">Quick Info</h3>
+                <dl class="space-y-2 text-sm">
+                    {% if pad.admission %}
+                    <div class="flex justify-between">
+                        <dt class="text-cyan-700">Admission</dt>
+                        <dd class="font-medium text-cyan-900">{{ pad.admission }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if pad.price %}
+                    <div class="flex justify-between">
+                        <dt class="text-cyan-700">Price</dt>
+                        <dd class="font-medium text-cyan-900">{{ pad.price }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if pad.season %}
+                    <div class="flex justify-between">
+                        <dt class="text-cyan-700">Season</dt>
+                        <dd class="font-medium text-cyan-900 text-right max-w-[60%]">{{ pad.season }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if pad.type %}
+                    <div class="flex justify-between">
+                        <dt class="text-cyan-700">Type</dt>
+                        <dd class="font-medium text-cyan-900">{{ pad.type }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+
+            <!-- Things Nearby -->
+            {% if pad.latitude and pad.longitude %}
+            <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-6">
+                <h3 class="font-semibold text-gray-900 mb-4">Things Nearby</h3>
+                <div class="space-y-2">
+                    <a href="https://www.google.com/maps/search/ice+cream+shop/@{{ pad.latitude }},{{ pad.longitude }},14z"
+                       target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 w-full py-2.5 px-3 bg-gray-50 hover:bg-cyan-50 hover:text-cyan-700 text-gray-700 text-sm font-medium rounded-lg border border-gray-100 transition-colors">
+                        🍦 Ice Cream Shops
+                    </a>
+                    <a href="https://www.google.com/maps/search/restaurant/@{{ pad.latitude }},{{ pad.longitude }},14z"
+                       target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 w-full py-2.5 px-3 bg-gray-50 hover:bg-cyan-50 hover:text-cyan-700 text-gray-700 text-sm font-medium rounded-lg border border-gray-100 transition-colors">
+                        🍔 Restaurants
+                    </a>
+                    <a href="https://www.google.com/maps/search/playground/@{{ pad.latitude }},{{ pad.longitude }},14z"
+                       target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 w-full py-2.5 px-3 bg-gray-50 hover:bg-cyan-50 hover:text-cyan-700 text-gray-700 text-sm font-medium rounded-lg border border-gray-100 transition-colors">
+                        🛝 Playgrounds
+                    </a>
+                    <a href="https://www.google.com/maps/search/grocery+store/@{{ pad.latitude }},{{ pad.longitude }},14z"
+                       target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 w-full py-2.5 px-3 bg-gray-50 hover:bg-cyan-50 hover:text-cyan-700 text-gray-700 text-sm font-medium rounded-lg border border-gray-100 transition-colors">
+                        🛒 Grocery & Snacks
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Local Weather -->
+            {% if pad.latitude and pad.longitude %}
+            <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-6">
+                <h3 class="font-semibold text-gray-900 mb-4">Local Weather</h3>
+                <a href="https://forecast.weather.gov/MapClick.php?lat={{ pad.latitude }}&lon={{ pad.longitude }}"
+                   target="_blank" rel="noopener noreferrer"
+                   class="flex items-center gap-3 w-full py-2.5 px-3 bg-gray-50 hover:bg-cyan-50 hover:text-cyan-700 text-gray-700 text-sm font-medium rounded-lg border border-gray-100 transition-colors">
+                    🌤 Check Current Weather & Forecast
+                </a>
+                <p class="text-xs text-gray-400 mt-2">Via National Weather Service (weather.gov)</p>
+            </div>
+            {% endif %}
+
+            <!-- Share -->
+            <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-6">
+                <h3 class="font-semibold text-gray-900 mb-3">Share This Splash Pad</h3>
+                <div class="flex gap-2">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ site_url }}/pad/{{ pad.slug }}.html"
+                       target="_blank" rel="noopener noreferrer" title="Share on Facebook"
+                       class="p-2 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 text-gray-400 rounded-lg border border-gray-100 transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url={{ site_url }}/pad/{{ pad.slug }}.html&text={{ pad.name | urlencode }}%20-%20{{ pad.city | urlencode }}%2C%20{{ pad.state | urlencode }}"
+                       target="_blank" rel="noopener noreferrer" title="Share on X"
+                       class="p-2 bg-gray-50 hover:bg-gray-200 hover:text-black text-gray-400 rounded-lg border border-gray-100 transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <a href="mailto:?subject={{ pad.name | urlencode }}&body=Check out {{ pad.name | urlencode }} in {{ pad.city | urlencode }}%2C {{ pad.state | urlencode }}: {{ site_url }}/pad/{{ pad.slug }}.html"
+                       title="Share via Email"
+                       class="p-2 bg-gray-50 hover:bg-cyan-50 hover:text-cyan-700 text-gray-400 rounded-lg border border-gray-100 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Suggest an Edit -->
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
+                <p class="text-sm text-gray-600 mb-2">Is something incorrect or outdated?</p>
+                <a href="/contact.html" class="text-sm text-cyan-600 hover:text-cyan-700 font-medium">Suggest a correction →</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Related Pads -->
+    {% if related_pads %}
+    <div class="mt-12 border-t border-gray-100 pt-10">
+        <h2 class="text-xl font-bold text-gray-900 mb-6">More Splash Pads in {{ pad.state }}</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for pad in related_pads %}
+            {% include '_pad_card.html' %}
+            {% endfor %}
+        </div>
+        <div class="text-center mt-8">
+            <a href="/state/{{ pad.state_slug }}.html"
+               class="inline-block px-6 py-3 border border-cyan-600 text-cyan-600 hover:bg-cyan-600 hover:text-white font-semibold rounded-lg transition-colors">
+                View All Splash Pads in {{ pad.state }} →
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Structured Data: LocalBusiness -->
+{% autoescape false %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": {{ pad.name | tojson }},
+    "description": {{ pad.description | tojson }},
+    {% if pad.photo_url %}
+    "image": {{ pad.photo_url | tojson }},
+    {% endif %}
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": {{ pad.address | tojson }},
+        "addressLocality": {{ pad.city | tojson }},
+        "addressRegion": {{ pad.state | tojson }},
+        "postalCode": {{ pad.zip | tojson }},
+        "addressCountry": "US"
+    },
+    {% if pad.phone %}
+    "telephone": {{ pad.phone | tojson }},
+    {% endif %}
+    {% if pad.website_url %}
+    "url": {{ pad.website_url | tojson }},
+    {% endif %}
+    {% if pad.google_maps_url %}
+    "hasMap": {{ pad.google_maps_url | tojson }},
+    {% endif %}
+    {% if pad.rating and pad.review_count %}
+    "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": {{ pad.rating }},
+        "reviewCount": {{ pad.review_count }}
+    },
+    {% endif %}
+    "openingHours": {{ pad.hours | tojson }},
+    "isAccessibleForFree": {{ "true" if pad.admission == "Free" else "false" }}
+}
+</script>
+{% endautoescape %}
+
+{% endblock %}

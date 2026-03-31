@@ -1,0 +1,31 @@
+<!-- Compact groomer list item — used on state pages with 50+ listings to reduce HTML size for crawl efficiency -->
+<div class="flex items-center justify-between py-2.5 border-b border-gray-100 hover:bg-gray-50 group" data-type="{{ groomer.type }}" data-state="{{ groomer.state }}">
+    <div class="min-w-0 flex-1">
+        <a href="/groomer/{{ groomer.slug }}.html"
+           class="font-medium text-gray-900 hover:text-violet-600 transition-colors text-sm truncate block">
+            {{ groomer.name }}
+        </a>
+        <span class="text-xs text-gray-500">📍 {{ groomer.city }}{% if groomer.type %} · {{ groomer.type }}{% endif %}</span>
+    </div>
+    <div class="flex items-center gap-2 ml-3 flex-shrink-0">
+        {% if groomer.price_range %}
+        <span class="text-xs px-2 py-0.5 rounded-full font-medium
+            {% if groomer.price_range == '$' %}bg-green-100 text-green-800
+            {% elif groomer.price_range == '$$' %}bg-amber-100 text-amber-800
+            {% elif groomer.price_range == '$$$' %}bg-rose-100 text-rose-800
+            {% else %}bg-blue-100 text-blue-800{% endif %}">
+            {% if groomer.price_range == '$' %}Budget-Friendly
+            {% elif groomer.price_range == '$$' %}Mid-Range
+            {% elif groomer.price_range == '$$$' %}Premium
+            {% else %}{{ groomer.price_range }}{% endif %}
+        </span>
+        {% endif %}
+        {% if groomer.rating %}
+        <span class="text-xs text-gray-500">★ {{ groomer.rating }}</span>
+        {% endif %}
+        <a href="/groomer/{{ groomer.slug }}.html"
+           class="text-xs text-violet-600 hover:text-violet-700 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            View →
+        </a>
+    </div>
+</div>

@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">About Dog Groomer Locator</h1>
+        <p class="text-gray-500 mb-8">The most complete dog grooming directory in the United States</p>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="bg-violet-50 border border-violet-100 rounded-xl p-5 text-center">
+                <div class="text-3xl font-bold text-violet-700">{{ total_count | default('2,900') }}+</div>
+                <div class="text-sm text-violet-600 mt-1">Groomers Listed</div>
+            </div>
+            <div class="bg-violet-50 border border-violet-100 rounded-xl p-5 text-center">
+                <div class="text-3xl font-bold text-violet-700">50</div>
+                <div class="text-sm text-violet-600 mt-1">States Covered</div>
+            </div>
+            <div class="bg-violet-50 border border-violet-100 rounded-xl p-5 text-center">
+                <div class="text-3xl font-bold text-violet-700">Free</div>
+                <div class="text-sm text-violet-600 mt-1">Always Free to Use</div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+
+            <!-- Our Story -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Our Story</h2>
+                <p class="text-gray-600 leading-relaxed mb-4">
+                    Dog Groomer Locator was built by a pet owner who got tired of the same frustrating experience:
+                    searching online for a reputable groomer in a new area, finding outdated Yelp pages, broken links,
+                    and listings with no hours, no photos, and no clear idea of what services were actually offered.
+                </p>
+                <p class="text-gray-600 leading-relaxed mb-4">
+                    The idea was simple — build the resource that should have existed all along. A single,
+                    searchable directory covering dog groomers, grooming salons, and mobile pet groomers
+                    across the United States, with real information that helps pet owners actually plan a visit.
+                </p>
+                <p class="text-gray-600 leading-relaxed">
+                    Today, Dog Groomer Locator is one of the most comprehensive pet grooming directories in the country,
+                    with over {{ total_count | default('2,900') }} listings across all 50 states — and growing every week.
+                </p>
+            </div>
+
+            <!-- Our Mission -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Our Mission</h2>
+                <p class="text-gray-600 leading-relaxed mb-4">
+                    Our mission is to make professional dog grooming easy to find for every pet owner in America.
+                    Regular grooming is essential for a dog's health and wellbeing — but only when owners can
+                    find a groomer they trust.
+                </p>
+                <p class="text-gray-600 leading-relaxed">
+                    We believe no dog should go without proper grooming care simply because it was hard to find a
+                    qualified professional nearby. Whether you're a new pet owner looking for your first groomer,
+                    or a seasoned dog parent who just moved to a new city, Dog Groomer Locator is here to help.
+                </p>
+            </div>
+
+            <!-- What We List -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">What We List</h2>
+                <p class="text-gray-600 leading-relaxed mb-5">
+                    Our directory covers the full spectrum of professional dog grooming — from small independent
+                    groomers operating out of a home studio to large franchise salons and mobile grooming services.
+                </p>
+                <ul class="space-y-3 text-gray-600">
+                    <li class="flex items-start gap-3">
+                        <span class="text-xl mt-0.5">✂️</span>
+                        <div><strong>Full-Service Grooming Salons</strong> — Drop-off facilities offering complete grooming packages including bath, haircut, nail trim, ear cleaning, and more. Great for regular appointments.</div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-xl mt-0.5">🚐</span>
+                        <div><strong>Mobile Groomers</strong> — Self-contained grooming vans that come directly to your home. Ideal for anxious dogs or pet owners with busy schedules who prefer the convenience.</div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-xl mt-0.5">🏠</span>
+                        <div><strong>Home-Based Groomers</strong> — Independent groomers who operate from a personal studio, often offering a quieter, more one-on-one experience for dogs who don't do well in busy salon environments.</div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-xl mt-0.5">🐕</span>
+                        <div><strong>Breed Specialists</strong> — Groomers with specialized expertise in specific breeds or coat types, including doodles, double-coated breeds, and dogs requiring hand-stripping or specialized cuts.</div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- What We Include -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">What We Include for Each Listing</h2>
+                <p class="text-gray-600 leading-relaxed mb-5">
+                    Every listing in our directory includes as much practical information as possible so you can
+                    choose the right groomer without surprises.
+                </p>
+                <div class="grid grid-cols-2 gap-3 text-sm text-gray-600">
+                    <div class="flex items-center gap-2">✓ <span>Hours of operation</span></div>
+                    <div class="flex items-center gap-2">✓ <span>Price range</span></div>
+                    <div class="flex items-center gap-2">✓ <span>Services offered</span></div>
+                    <div class="flex items-center gap-2">✓ <span>Breed specialties</span></div>
+                    <div class="flex items-center gap-2">✓ <span>Groomer type</span></div>
+                    <div class="flex items-center gap-2">✓ <span>Customer ratings</span></div>
+                    <div class="flex items-center gap-2">✓ <span>Google Maps directions</span></div>
+                    <div class="flex items-center gap-2">✓ <span>Official website link</span></div>
+                    <div class="flex items-center gap-2">✓ <span>Phone number</span></div>
+                    <div class="flex items-center gap-2">✓ <span>Photos</span></div>
+                </div>
+            </div>
+
+            <!-- Accuracy -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Our Commitment to Accuracy</h2>
+                <p class="text-gray-600 leading-relaxed mb-4">
+                    We work continuously to keep listings accurate and up to date. Hours, pricing, and services
+                    can change — we encourage visitors to confirm details directly with a groomer before
+                    scheduling an appointment.
+                </p>
+                <p class="text-gray-600 leading-relaxed mb-4">
+                    If you notice an error, an outdated listing, or a dog groomer that's missing from our directory,
+                    please let us know. Your corrections help every pet owner who visits the site after you.
+                </p>
+                <a href="/contact.html"
+                   class="inline-block px-5 py-2.5 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 transition-colors text-sm">
+                    Report an Error or Submit a Listing →
+                </a>
+            </div>
+
+            <!-- Submit -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Help Us Grow</h2>
+                <p class="text-gray-600 leading-relaxed mb-4">
+                    Know of a dog groomer, grooming salon, or mobile grooming service that isn't in our directory yet?
+                    We want to hear about it. New submissions are reviewed and added regularly — your local
+                    knowledge helps pet owners across the country find great groomers.
+                </p>
+                <a href="/submit.html"
+                   class="inline-block px-5 py-2.5 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 transition-colors text-sm">
+                    Submit a Dog Groomer →
+                </a>
+            </div>
+
+            <!-- Affiliate Disclosure -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Affiliate Disclosure</h2>
+                <p class="text-gray-600 leading-relaxed">
+                    Some links on this site may be affiliate links — for example, links to grooming tools,
+                    dog shampoos, or pet care products. We may earn a small commission if you purchase through
+                    these links, at no additional cost to you. This helps us keep the directory free and maintained.
+                    Our listings and editorial content are always independent and are not influenced by affiliate relationships.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

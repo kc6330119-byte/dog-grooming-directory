@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Blog Header -->
+<section class="bg-gradient-to-r from-violet-600 to-purple-700 text-white py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl md:text-4xl font-bold mb-2">Dog Grooming Blog</h1>
+        <p class="text-violet-100 text-lg">Tips, guides, and inspiration for keeping your dog looking their best</p>
+    </div>
+</section>
+
+<!-- Posts Grid -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    {% if posts %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for post in posts %}
+        <article class="listing-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+
+            <!-- Featured Image -->
+            <div class="h-52 bg-violet-50 overflow-hidden flex-shrink-0">
+                {% if post.featured_image %}
+                <img src="{{ post.featured_image }}" alt="{{ post.title }}"
+                     class="w-full h-full object-cover" loading="lazy"
+                     referrerpolicy="no-referrer"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div style="display:none" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-purple-200">
+                    <span class="text-5xl opacity-30">🐕</span>
+                </div>
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-purple-200">
+                    <span class="text-5xl opacity-30">🐕</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Content -->
+            <div class="p-5 flex flex-col flex-grow">
+                <div class="flex items-center gap-2 text-xs text-gray-400 mb-3">
+                    {% if post.publish_date %}
+                    <span>📅 {{ post.publish_date | format_date }}</span>
+                    {% endif %}
+                    {% if post.author %}
+                    <span>·</span>
+                    <span>{{ post.author }}</span>
+                    {% endif %}
+                </div>
+
+                <h2 class="text-lg font-bold text-gray-900 leading-snug mb-2">
+                    <a href="/blog/{{ post.slug }}.html" class="hover:text-violet-600 transition-colors">
+                        {{ post.title }}
+                    </a>
+                </h2>
+
+                {% if post.excerpt %}
+                <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-grow">{{ post.excerpt }}</p>
+                {% endif %}
+
+                <a href="/blog/{{ post.slug }}.html"
+                   class="mt-auto inline-block text-sm font-semibold text-violet-600 hover:text-violet-700 transition-colors">
+                    Read More →
+                </a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty state -->
+    <div class="text-center py-20">
+        <span class="text-6xl">🐕</span>
+        <h2 class="text-xl font-semibold text-gray-900 mt-6 mb-2">Blog posts coming soon</h2>
+        <p class="text-gray-500 max-w-md mx-auto">
+            We're working on guides and tips to help you find the perfect dog groomer.
+            Check back soon!
+        </p>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

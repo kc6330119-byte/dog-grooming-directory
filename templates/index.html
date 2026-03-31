@@ -1,0 +1,432 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "What is a dog groomer?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A dog groomer is a professional who provides grooming services for dogs, including bathing, haircuts, nail trimming, ear cleaning, teeth brushing, and more. Groomers can work in full-service salons, mobile grooming vans, or as home-visit groomers. Regular grooming keeps dogs healthy, clean, and comfortable."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How often should I get my dog groomed?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The frequency depends on your dog's breed, coat type, and lifestyle. Long-haired breeds often need grooming every 4–6 weeks, while short-haired dogs may only need a bath and tidy every 8–12 weeks. Nails typically need trimming every 3–4 weeks. Your groomer can recommend a schedule based on your dog's specific needs."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What's the difference between a full-service groomer and a mobile groomer?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A full-service grooming salon is a brick-and-mortar location where you drop off your dog and pick them up later. A mobile groomer comes to your home in a self-contained grooming van, offering a one-on-one experience with no other dogs around — ideal for anxious pets. Both offer similar services, but mobile grooming typically costs more due to the convenience factor."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How do I find a reputable dog groomer near me?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Look for groomers with verified reviews, proper certifications (such as National Dog Groomers Association credentials), and experience with your specific breed. Dog Groomer Locator makes it easy to browse groomers by state and filter by service type, so you can find trusted professionals near you quickly."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How much does dog grooming cost?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Dog grooming prices vary by location, dog size, coat condition, and services requested. A basic bath and brush might cost $30–$60 for a small dog, while a full groom for a large breed can run $80–$150+. Mobile groomers and premium salons tend to charge more. Use Dog Groomer Locator to browse grooming options in your area and find a price range that works for you."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What should I ask a groomer before my dog's first appointment?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ask about their experience with your breed, what products they use, how they handle anxious dogs, and whether they require up-to-date vaccinations. It's also a good idea to ask if you can tour the facility, understand their handling methods, and clarify exactly what's included in the price quoted."
+            }
+        }
+    ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-violet-600 via-violet-700 to-purple-800 text-white py-16 md:py-24">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+            Find Dog Groomers Near You
+        </h1>
+        <p class="text-xl md:text-2xl text-violet-100 mb-10 max-w-2xl mx-auto">
+            Discover trusted dog groomers, grooming salons, and mobile pet groomers across America.
+        </p>
+
+        <!-- State Search -->
+        <div class="bg-white rounded-xl p-2 shadow-2xl max-w-lg mx-auto flex gap-2">
+            <select id="state-select" class="flex-grow px-4 py-3 text-gray-700 bg-transparent focus:outline-none text-sm rounded-lg">
+                <option value="">Select a state...</option>
+                {% for state in us_states %}
+                <option value="{{ state.slug }}">{{ state.name }}</option>
+                {% endfor %}
+            </select>
+            <button onclick="goToState()" class="px-6 py-3 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 transition-colors text-sm whitespace-nowrap">
+                Find Groomers
+            </button>
+        </div>
+
+        <!-- Quick category links -->
+        <div class="mt-6 flex flex-wrap justify-center gap-2">
+            <span class="text-violet-200 text-sm self-center">Quick browse:</span>
+            {% for cat in categories[:4] %}
+            <a href="/category/{{ cat.slug }}.html"
+               class="bg-white/20 hover:bg-white/30 text-white text-sm px-3 py-1 rounded-full transition-colors border border-white/20">
+                {{ cat.icon }} {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <p class="mt-8 text-violet-200 text-sm">{{ total_count }}+ dog groomers listed across all 50 states</p>
+    </div>
+</section>
+
+<!-- Featured Groomers -->
+{% if featured_groomers %}
+<section class="py-12" id="featured">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Featured Dog Groomers</h2>
+                <p class="text-gray-500 text-sm mt-1">Hand-picked favorites for pet owners</p>
+            </div>
+            <a href="#browse-states" class="text-sm text-violet-600 hover:text-violet-700 font-medium hidden sm:block">Browse all states →</a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for groomer in featured_groomers %}
+            {% include '_groomer_card.html' %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Recently Added -->
+{% if recent_groomers %}
+<section class="py-10 bg-white" id="recent">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Recently Added</h2>
+                <p class="text-gray-500 text-sm mt-1">Newest listings in the directory</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for groomer in recent_groomers %}
+            {% include '_groomer_card.html' %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Browse by State -->
+<section class="py-12 bg-gray-50" id="browse-states">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Browse by State</h2>
+            <p class="text-gray-500">Find dog groomers in your state</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {% for state in us_states %}
+            {% set count = state_counts.get(state.slug, 0) %}
+            <a href="/state/{{ state.slug }}.html"
+               class="flex items-center justify-between bg-white border border-gray-200 hover:border-violet-400 hover:shadow-sm rounded-lg px-3 py-2.5 transition-all group">
+                <span class="font-medium text-sm text-gray-800 group-hover:text-violet-700">{{ state.name }}</span>
+                {% if count > 0 %}
+                <span class="text-xs bg-violet-100 text-violet-700 font-semibold px-2 py-0.5 rounded-full">{{ count }}</span>
+                {% else %}
+                <span class="text-xs text-gray-300 font-medium">{{ state.abbr }}</span>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Browse by Category -->
+<section class="py-12 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Browse by Type</h2>
+            <p class="text-gray-500">Find dog groomers that match your needs</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {% for cat in categories %}
+            <a href="/category/{{ cat.slug }}.html"
+               class="bg-violet-50 hover:bg-violet-100 border border-violet-100 hover:border-violet-300 rounded-xl p-5 text-center transition-all group">
+                <div class="text-3xl mb-2">{{ cat.icon }}</div>
+                <h3 class="font-semibold text-sm text-gray-900 group-hover:text-violet-700 mb-1">{{ cat.name }}</h3>
+                <p class="text-xs text-gray-500 leading-tight">{{ cat.description }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- SEO Text Block -->
+<section class="py-12 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">The #1 Dog Groomer Directory in America</h2>
+        <p class="text-gray-600 leading-relaxed mb-4">
+            Dog Groomer Locator is the most comprehensive directory of dog groomers, grooming salons, and mobile
+            pet grooming services in the United States. We help pet owners find trusted groomers near them —
+            complete with hours, photos, pricing, and services offered.
+        </p>
+        <p class="text-gray-600 leading-relaxed">
+            Whether you're looking for a budget-friendly groomer for a quick bath, an experienced specialist
+            for a breed-specific cut, or a mobile groomer who comes to your door, we have you covered with
+            {{ total_count | default('3,000') }}+ listings across all 50 states — plus
+            {{ posts | length }}+ expert guides and tips to help you keep your dog looking and feeling their best.
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center gap-6 text-sm text-gray-500">
+            <span>✓ All price ranges</span>
+            <span>✓ Hours &amp; availability</span>
+            <span>✓ Services listed</span>
+            <span>✓ Updated regularly</span>
+        </div>
+    </div>
+</section>
+
+<!-- From the Blog -->
+{% if featured_post or recent_posts %}
+<section class="py-12 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">From the Blog</h2>
+                <p class="text-gray-500 text-sm mt-1">Tips and guides for dog grooming</p>
+            </div>
+            <a href="/blog.html" class="text-sm text-violet-600 hover:text-violet-700 font-medium hidden sm:block">View all posts →</a>
+        </div>
+
+        {% if featured_post %}
+        <!-- Featured Post Hero Card -->
+        <a href="/blog/{{ featured_post.slug }}.html"
+           class="group block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow mb-8">
+            <div class="md:flex">
+                <div class="md:w-2/5 h-56 md:h-64 bg-violet-50 overflow-hidden flex-shrink-0">
+                    {% if featured_post.featured_image %}
+                    <img src="{{ featured_post.featured_image }}" alt="{{ featured_post.title }}"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                         referrerpolicy="no-referrer"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="display:none" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-200 to-purple-300">
+                        <span class="text-6xl opacity-30">🐕</span>
+                    </div>
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-200 to-purple-300">
+                        <span class="text-6xl opacity-30">🐕</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="p-6 md:p-8 flex flex-col justify-center">
+                    <span class="inline-block text-xs font-semibold text-violet-700 bg-violet-100 px-3 py-1 rounded-full mb-3 w-fit">Featured</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-gray-900 group-hover:text-violet-600 leading-snug mb-3 transition-colors">{{ featured_post.title }}</h3>
+                    {% if featured_post.excerpt %}
+                    <p class="text-gray-500 leading-relaxed mb-4 line-clamp-2">{{ featured_post.excerpt }}</p>
+                    {% endif %}
+                    <div class="flex items-center gap-3 text-xs text-gray-400 mb-4">
+                        {% if featured_post.publish_date %}
+                        <span>📅 {{ featured_post.publish_date | format_date }}</span>
+                        {% endif %}
+                        {% if featured_post.author %}
+                        <span>· ✍️ {{ featured_post.author }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="inline-flex items-center text-sm font-semibold text-violet-600 group-hover:text-violet-700">
+                        Read Article →
+                    </span>
+                </div>
+            </div>
+        </a>
+        {% endif %}
+
+        {% if recent_posts %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {% for post in recent_posts %}
+            <a href="/blog/{{ post.slug }}.html"
+               class="listing-card bg-white rounded-xl border border-gray-100 overflow-hidden flex flex-col group">
+                <div class="h-44 bg-violet-50 overflow-hidden flex-shrink-0">
+                    {% if post.featured_image %}
+                    <img src="{{ post.featured_image }}" alt="{{ post.title }}"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                         loading="lazy" referrerpolicy="no-referrer"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="display:none" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-purple-200">
+                        <span class="text-4xl opacity-30">🐕</span>
+                    </div>
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-purple-200">
+                        <span class="text-4xl opacity-30">🐕</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="p-4 flex flex-col flex-grow">
+                    {% if post.publish_date %}
+                    <p class="text-xs text-gray-400 mb-2">{{ post.publish_date | format_date }}</p>
+                    {% endif %}
+                    <h3 class="font-bold text-gray-900 group-hover:text-violet-600 leading-snug text-sm mb-2 transition-colors">{{ post.title }}</h3>
+                    {% if post.excerpt %}
+                    <p class="text-xs text-gray-500 leading-relaxed line-clamp-2">{{ post.excerpt }}</p>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-8 sm:hidden">
+            <a href="/blog.html" class="text-sm text-violet-600 hover:text-violet-700 font-medium">View all posts →</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- FAQ Section -->
+<section class="py-12 bg-white border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Frequently Asked Questions</h2>
+            <p class="text-gray-500">Everything pet owners need to know about dog groomers</p>
+        </div>
+
+        <div class="space-y-4" id="faq-list">
+
+            <div class="faq-item bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                <button class="faq-btn w-full text-left px-6 py-4 flex items-center justify-between font-semibold text-gray-900 hover:bg-gray-100 transition-colors"
+                        aria-expanded="false">
+                    <span>What is a dog groomer?</span>
+                    <svg class="faq-icon w-5 h-5 text-gray-500 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer hidden px-6 pb-5 text-gray-600 leading-relaxed text-sm">
+                    A dog groomer is a professional who provides grooming services for dogs, including bathing, haircuts, nail trimming, ear cleaning, teeth brushing, and more. Groomers can work in full-service salons, mobile grooming vans, or as home-visit groomers. Regular grooming keeps dogs healthy, clean, and comfortable.
+                </div>
+            </div>
+
+            <div class="faq-item bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                <button class="faq-btn w-full text-left px-6 py-4 flex items-center justify-between font-semibold text-gray-900 hover:bg-gray-100 transition-colors"
+                        aria-expanded="false">
+                    <span>How often should I get my dog groomed?</span>
+                    <svg class="faq-icon w-5 h-5 text-gray-500 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer hidden px-6 pb-5 text-gray-600 leading-relaxed text-sm">
+                    The frequency depends on your dog's breed, coat type, and lifestyle. Long-haired breeds often need grooming every 4–6 weeks, while short-haired dogs may only need a bath and tidy every 8–12 weeks. Nails typically need trimming every 3–4 weeks. Your groomer can recommend a schedule based on your dog's specific needs.
+                </div>
+            </div>
+
+            <div class="faq-item bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                <button class="faq-btn w-full text-left px-6 py-4 flex items-center justify-between font-semibold text-gray-900 hover:bg-gray-100 transition-colors"
+                        aria-expanded="false">
+                    <span>What's the difference between a full-service groomer and a mobile groomer?</span>
+                    <svg class="faq-icon w-5 h-5 text-gray-500 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer hidden px-6 pb-5 text-gray-600 leading-relaxed text-sm">
+                    A full-service grooming salon is a brick-and-mortar location where you drop off your dog and pick them up later. A mobile groomer comes to your home in a self-contained grooming van, offering a one-on-one experience with no other dogs around — ideal for anxious pets. Both offer similar services, but mobile grooming typically costs more due to the convenience factor.
+                </div>
+            </div>
+
+            <div class="faq-item bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                <button class="faq-btn w-full text-left px-6 py-4 flex items-center justify-between font-semibold text-gray-900 hover:bg-gray-100 transition-colors"
+                        aria-expanded="false">
+                    <span>How do I find a reputable dog groomer near me?</span>
+                    <svg class="faq-icon w-5 h-5 text-gray-500 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer hidden px-6 pb-5 text-gray-600 leading-relaxed text-sm">
+                    Look for groomers with verified reviews, proper certifications (such as National Dog Groomers Association credentials), and experience with your specific breed. Browse our <a href="/category/full-service.html" class="text-violet-600 hover:underline">Full-Service Salons</a> or <a href="/category/mobile.html" class="text-violet-600 hover:underline">Mobile Groomers</a> listings to find trusted professionals near you.
+                </div>
+            </div>
+
+            <div class="faq-item bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                <button class="faq-btn w-full text-left px-6 py-4 flex items-center justify-between font-semibold text-gray-900 hover:bg-gray-100 transition-colors"
+                        aria-expanded="false">
+                    <span>How much does dog grooming cost?</span>
+                    <svg class="faq-icon w-5 h-5 text-gray-500 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer hidden px-6 pb-5 text-gray-600 leading-relaxed text-sm">
+                    Dog grooming prices vary by location, dog size, coat condition, and services requested. A basic bath and brush might cost $30–$60 for a small dog, while a full groom for a large breed can run $80–$150+. Mobile groomers and premium salons tend to charge more. Use Dog Groomer Locator to browse grooming options in your area and find a price range that works for you.
+                </div>
+            </div>
+
+            <div class="faq-item bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                <button class="faq-btn w-full text-left px-6 py-4 flex items-center justify-between font-semibold text-gray-900 hover:bg-gray-100 transition-colors"
+                        aria-expanded="false">
+                    <span>What should I ask a groomer before my dog's first appointment?</span>
+                    <svg class="faq-icon w-5 h-5 text-gray-500 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer hidden px-6 pb-5 text-gray-600 leading-relaxed text-sm">
+                    Ask about their experience with your breed, what products they use, how they handle anxious dogs, and whether they require up-to-date vaccinations. It's also a good idea to ask if you can tour the facility, understand their handling methods, and clarify exactly what's included in the price quoted.
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<script>
+function goToState() {
+    const slug = document.getElementById('state-select').value;
+    if (slug) window.location.href = '/state/' + slug + '.html';
+}
+// Also navigate on change for quick selection
+document.getElementById('state-select').addEventListener('change', function() {
+    if (this.value) goToState();
+});
+
+// FAQ accordion
+document.querySelectorAll('.faq-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const answer = this.nextElementSibling;
+        const icon = this.querySelector('.faq-icon');
+        const isOpen = !answer.classList.contains('hidden');
+
+        // Close all
+        document.querySelectorAll('.faq-answer').forEach(function(a) { a.classList.add('hidden'); });
+        document.querySelectorAll('.faq-icon').forEach(function(i) { i.style.transform = ''; });
+        document.querySelectorAll('.faq-btn').forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
+
+        // Open clicked (if it was closed)
+        if (!isOpen) {
+            answer.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+            this.setAttribute('aria-expanded', 'true');
+        }
+    });
+});
+</script>
+
+{% endblock %}

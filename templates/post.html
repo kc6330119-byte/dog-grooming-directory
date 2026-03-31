@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+{% autoescape false %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": {{ post.title | tojson }},
+    "description": {{ (post.meta_description or post.excerpt) | tojson }},
+    {% if post.featured_image %}
+    "image": {{ post.featured_image | tojson }},
+    {% endif %}
+    "author": {
+        "@type": "Person",
+        "name": {{ post.author | tojson }},
+        "description": {{ post.author_credentials | tojson }}
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": {{ site_name | tojson }},
+        "url": {{ site_url | tojson }}
+    },
+    {% if post.publish_date %}
+    "datePublished": {{ post.publish_date | tojson }},
+    {% endif %}
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": {{ (site_url ~ "/blog/" ~ post.slug ~ ".html") | tojson }}
+    }
+}
+</script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": {{ (site_url ~ "/") | tojson }}
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Blog",
+            "item": {{ (site_url ~ "/blog.html") | tojson }}
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": {{ post.title | tojson }},
+            "item": {{ (site_url ~ "/blog/" ~ post.slug ~ ".html") | tojson }}
+        }
+    ]
+}
+</script>
+{% endautoescape %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<div class="bg-white border-b">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <nav class="flex text-sm text-gray-500" aria-label="Breadcrumb">
+            <a href="/" class="hover:text-violet-600">Home</a>
+            <span class="mx-2">/</span>
+            <a href="/blog.html" class="hover:text-violet-600">Blog</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-900 font-medium truncate">{{ post.title }}</span>
+        </nav>
+    </div>
+</div>
+
+<!-- Featured Image -->
+{% if post.featured_image %}
+<div class="w-full h-64 md:h-80 overflow-hidden">
+    <img src="{{ post.featured_image }}" alt="{{ post.title }}"
+         class="w-full h-full object-cover"
+         referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div style="display:none" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-200 to-purple-300">
+        <span class="text-8xl opacity-30">🐕</span>
+    </div>
+</div>
+{% endif %}
+
+<!-- Article -->
+<article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-4">
+            {{ post.title }}
+        </h1>
+        <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 border-b border-gray-100 pb-6">
+            {% if post.publish_date %}
+            <span>📅 {{ post.publish_date | format_date }}</span>
+            {% endif %}
+            {% if post.author %}
+            <span>·</span>
+            <span>✍️ {{ post.author }}</span>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Content -->
+    <div class="prose-content">
+        {{ post.content | markdown }}
+    </div>
+
+    <!-- Share -->
+    <div class="mt-10 pt-6 border-t border-gray-100">
+        <p class="text-sm font-semibold text-gray-700 mb-3">Share this article</p>
+        <div class="flex gap-2">
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ site_url }}/blog/{{ post.slug }}.html"
+               target="_blank" rel="noopener noreferrer" title="Share on Facebook"
+               class="p-2.5 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 text-gray-500 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>
+            <a href="https://twitter.com/intent/tweet?url={{ site_url }}/blog/{{ post.slug }}.html&text={{ post.title | urlencode }}"
+               target="_blank" rel="noopener noreferrer" title="Share on X"
+               class="p-2.5 bg-gray-100 hover:bg-gray-200 hover:text-black text-gray-500 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://pinterest.com/pin/create/button/?url={{ site_url }}/blog/{{ post.slug }}.html&description={{ post.title | urlencode }}"
+               target="_blank" rel="noopener noreferrer" title="Share on Pinterest"
+               class="p-2.5 bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-500 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z"/></svg>
+            </a>
+            <a href="mailto:?subject={{ post.title | urlencode }}&body=Check out this article: {{ site_url }}/blog/{{ post.slug }}.html"
+               title="Share via Email"
+               class="p-2.5 bg-gray-100 hover:bg-violet-50 hover:text-violet-700 text-gray-500 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- Author Bio -->
+    {% if post.author_bio %}
+    <div class="mt-8 bg-violet-50 border border-violet-100 rounded-xl p-6">
+        <h3 class="font-semibold text-gray-900 mb-2">About the Author</h3>
+        <p class="font-medium text-violet-800 mb-1">{{ post.author }}</p>
+        {% if post.author_credentials %}
+        <p class="text-sm text-violet-600 mb-3">{{ post.author_credentials }}</p>
+        {% endif %}
+        <p class="text-sm text-gray-600 leading-relaxed">{{ post.author_bio }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <footer class="mt-8 pt-8 border-t border-gray-100">
+        <a href="/blog.html"
+           class="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors">
+            ← Back to Blog
+        </a>
+    </footer>
+
+</article>
+
+<!-- Related Posts -->
+{% set related = [] %}
+{% for p in all_posts %}
+    {% if p.slug != post.slug and related | length < 3 %}
+        {% set related = related.append(p) or related %}
+    {% endif %}
+{% endfor %}
+
+{% if related %}
+<section class="bg-gray-50 border-t py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-lg font-bold text-gray-900 mb-6">More from the Blog</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {% for p in related %}
+            <a href="/blog/{{ p.slug }}.html"
+               class="bg-white border border-gray-100 rounded-xl p-5 hover:shadow-sm hover:border-violet-200 transition-all group">
+                <p class="text-xs text-gray-400 mb-2">{{ p.publish_date | format_date }}</p>
+                <h3 class="font-semibold text-gray-900 group-hover:text-violet-600 leading-snug text-sm">{{ p.title }}</h3>
+                {% if p.excerpt %}
+                <p class="text-xs text-gray-500 mt-2 line-clamp-2">{{ p.excerpt }}</p>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+    document.querySelectorAll('canvas[data-chart]').forEach(function(canvas) {
+        try {
+            var config = JSON.parse(canvas.getAttribute('data-chart'));
+            new Chart(canvas, config);
+        } catch(e) {}
+    });
+})();
+</script>
+
+{% endblock %}

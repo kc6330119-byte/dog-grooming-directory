@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Header -->
+        <div class="mb-8">
+            <nav class="text-sm text-gray-500 mb-3">
+                <a href="/" class="hover:text-cyan-600">Home</a>
+                <span class="mx-2">/</span>
+                <span>Submit a Splash Pad</span>
+            </nav>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Submit a Splash Pad Listing</h1>
+            <p class="text-gray-500">
+                Know of a splash pad, spray park, or water play area that's missing from our directory?
+                Fill out the form below and we'll review and add it — usually within a few days.
+            </p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+
+            <form id="submit-form" name="listing-submission" method="POST" action="/submit.html"
+                  data-netlify="true" netlify-honeypot="bot-field" class="space-y-6">
+                <input type="hidden" name="form-name" value="listing-submission">
+                <p class="hidden">
+                    <label>Don't fill this out if you're human: <input name="bot-field"></label>
+                </p>
+
+                <!-- Section: Facility Info -->
+                <div>
+                    <h2 class="text-base font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">
+                        💧 Facility Information
+                    </h2>
+                    <div class="space-y-4">
+
+                        <div>
+                            <label for="facility-name" class="block text-sm font-medium text-gray-700 mb-1.5">
+                                Facility Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="facility-name" id="facility-name" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm"
+                                placeholder="e.g. Riverside Splash Pad">
+                        </div>
+
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1.5">
+                                Street Address
+                            </label>
+                            <input type="text" name="address" id="address"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm"
+                                placeholder="e.g. 123 Main St">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="md:col-span-1">
+                                <label for="city" class="block text-sm font-medium text-gray-700 mb-1.5">
+                                    City <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="city" id="city" required
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm">
+                            </div>
+                            <div>
+                                <label for="state" class="block text-sm font-medium text-gray-700 mb-1.5">
+                                    State <span class="text-red-500">*</span>
+                                </label>
+                                <select name="state" id="state" required
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm">
+                                    <option value="">Select...</option>
+                                    {% for s in us_states %}
+                                    <option value="{{ s.name }}">{{ s.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label for="zip" class="block text-sm font-medium text-gray-700 mb-1.5">Zip Code</label>
+                                <input type="text" name="zip" id="zip" maxlength="10"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
+                                <input type="tel" name="phone" id="phone"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm"
+                                    placeholder="(555) 555-5555">
+                            </div>
+                            <div>
+                                <label for="admission" class="block text-sm font-medium text-gray-700 mb-1.5">Admission</label>
+                                <select name="admission" id="admission"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm">
+                                    <option value="">Unknown</option>
+                                    <option value="Free">Free</option>
+                                    <option value="Paid">Paid</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="website-url" class="block text-sm font-medium text-gray-700 mb-1.5">Official Website URL</label>
+                                <input type="url" name="website-url" id="website-url"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm"
+                                    placeholder="https://...">
+                            </div>
+                            <div>
+                                <label for="maps-url" class="block text-sm font-medium text-gray-700 mb-1.5">Google Maps URL</label>
+                                <input type="url" name="maps-url" id="maps-url"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm"
+                                    placeholder="https://maps.google.com/...">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="hours" class="block text-sm font-medium text-gray-700 mb-1.5">Hours of Operation</label>
+                            <input type="text" name="hours" id="hours"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm"
+                                placeholder="e.g. Daily 9am – 8pm (Memorial Day – Labor Day)">
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Section: Type & Features -->
+                <div>
+                    <h2 class="text-base font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">
+                        🏷️ Type & Features
+                    </h2>
+                    <div class="space-y-4">
+
+                        <div>
+                            <label for="type" class="block text-sm font-medium text-gray-700 mb-1.5">Facility Type</label>
+                            <select name="type" id="type"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm">
+                                <option value="">Unknown / Not Sure</option>
+                                <option value="Splash Pad">Splash Pad</option>
+                                <option value="Spray Park">Spray Park</option>
+                                <option value="Aquatic Center">Aquatic Center</option>
+                                <option value="Water Park">Water Park</option>
+                                <option value="Resort Water Park">Resort Water Park</option>
+                                <option value="Indoor Splash Pad">Indoor Splash Pad</option>
+                                <option value="Indoor Water Play">Indoor Water Play</option>
+                                <option value="Amusement Park">Amusement Park</option>
+                                <option value="Campground Water Park">Campground Water Park</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Features (check all that apply)</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                {% for feature in ['Restrooms', 'Parking', 'Shade', 'Picnic Area', 'Playground', 'Snack Bar', 'Accessibility', 'Changing Rooms', 'Locker Rooms', 'Lifeguard on Duty', 'Concessions', 'Season Passes', 'Party Rentals'] %}
+                                <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                                    <input type="checkbox" name="features" value="{{ feature }}"
+                                        class="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500">
+                                    {{ feature }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1.5">
+                                Brief Description
+                                <span class="text-gray-400 font-normal">(2–3 sentences is fine)</span>
+                            </label>
+                            <textarea name="description" id="description" rows="4"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-y text-sm"
+                                placeholder="Describe the facility — what kind of water features does it have, who is it best for, anything that makes it stand out?"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Section: Your Info -->
+                <div>
+                    <h2 class="text-base font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">
+                        👤 Your Information
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="submitter-name" class="block text-sm font-medium text-gray-700 mb-1.5">
+                                Your Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="submitter-name" id="submitter-name" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm">
+                        </div>
+                        <div>
+                            <label for="submitter-email" class="block text-sm font-medium text-gray-700 mb-1.5">
+                                Your Email <span class="text-red-500">*</span>
+                            </label>
+                            <input type="email" name="submitter-email" id="submitter-email" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-sm">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-1.5">Additional Notes</label>
+                        <textarea name="notes" id="notes" rows="3"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-y text-sm"
+                            placeholder="Anything else we should know?"></textarea>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="submit-btn"
+                        class="w-full sm:w-auto px-8 py-3 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors text-sm">
+                        Submit Listing →
+                    </button>
+                    <p class="text-xs text-gray-400 mt-3">
+                        Fields marked <span class="text-red-500">*</span> are required.
+                        We'll review your submission and add it to the directory within a few days.
+                    </p>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</section>
+
+<script>
+document.getElementById('submit-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const btn = document.getElementById('submit-btn');
+    const originalText = btn.textContent;
+
+    btn.textContent = 'Submitting...';
+    btn.disabled = true;
+
+    try {
+        const formData = new FormData(form);
+        const response = await fetch('/submit.html', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formData).toString()
+        });
+
+        if (response.ok) {
+            window.location.href = '/success/index.html';
+        } else {
+            throw new Error('Submission failed');
+        }
+    } catch (error) {
+        alert('There was an error submitting the form. Please try again.');
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+});
+</script>
+
+{% endblock %}
