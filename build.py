@@ -133,7 +133,7 @@ def fetch_from_airtable():
                 "_airtable_id": record.get("id", ""),
                 "name": fields.get("Name", ""),
                 "slug": slugify(fields.get("Name", "") + "-" + fields.get("City", "")),
-                "description": fields.get("Description", ""),
+                "description": fields.get("Decription", fields.get("Description", "")),
                 "address": fields.get("Address", ""),
                 "city": fields.get("City", ""),
                 "state": state_name,
