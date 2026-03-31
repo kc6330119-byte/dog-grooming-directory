@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 
 {% block extra_head %}
+{% if groomers %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" crossorigin="">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" crossorigin="">
+{% endif %}
 {% autoescape false %}
 <script type="application/ld+json">
 {
@@ -79,6 +84,16 @@
 </div>
 {% endif %}
 
+<!-- Map -->
+{% if groomers %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <div class="bg-white rounded-xl border border-gray-200 p-4">
+        <h3 class="font-bold text-gray-900 mb-3 text-sm">View Results on Map</h3>
+        <div id="state-map" class="rounded-lg overflow-hidden" style="height: 250px;"></div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Listings -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
@@ -140,7 +155,66 @@
 </section>
 
 {% if groomers %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin=""></script>
 <script>
+(function() {
+    var groomers = [
+        {% for groomer in groomers %}
+        {% if groomer.latitude and groomer.longitude %}
+        {
+            name: {{ groomer.name | tojson | safe }},
+            slug: {{ groomer.slug | tojson | safe }},
+            stateSlug: {{ state.slug | tojson | safe }},
+            city: {{ groomer.city | tojson | safe }},
+            rating: {{ groomer.rating | tojson | safe }},
+            lat: {{ groomer.latitude }},
+            lng: {{ groomer.longitude }}
+        },
+        {% endif %}
+        {% endfor %}
+    ];
+
+    if (groomers.length === 0) {
+        document.getElementById('state-map').innerHTML = '<p class="text-sm text-gray-400 text-center py-8">No location data available</p>';
+        return;
+    }
+
+    var map = L.map('state-map', {
+        scrollWheelZoom: false,
+        zoomControl: true
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+        maxZoom: 18
+    }).addTo(map);
+
+    var markers = L.markerClusterGroup({
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false
+    });
+
+    var purpleIcon = L.divIcon({
+        className: '',
+        html: '<div style="background:#7c3aed;width:12px;height:12px;border-radius:50%;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>',
+        iconSize: [12, 12],
+        iconAnchor: [6, 6]
+    });
+
+    groomers.forEach(function(g) {
+        var star = g.rating ? ' &#9733; ' + g.rating : '';
+        var popup = '<a href="/state/' + g.stateSlug + '/' + g.slug + '.html" style="font-weight:600;color:#7c3aed;text-decoration:none">' +
+                    g.name + '</a><br><span style="color:#666;font-size:12px">' + g.city + star + '</span>';
+        var marker = L.marker([g.lat, g.lng], {icon: purpleIcon}).bindPopup(popup);
+        markers.addLayer(marker);
+    });
+
+    map.addLayer(markers);
+    map.fitBounds(markers.getBounds().pad(0.1));
+})();
+
 function filterGroomers(type) {
     const cards = document.querySelectorAll('#groomer-grid > div');
     let visible = 0;
