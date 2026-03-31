@@ -1,5 +1,29 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+{% autoescape false %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": {{ (site_url ~ "/") | tojson }}
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": {{ category.name | tojson }}
+        }
+    ]
+}
+</script>
+{% endautoescape %}
+{% endblock %}
+
 {% block content %}
 
 <!-- Category Header -->
