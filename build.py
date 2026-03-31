@@ -316,10 +316,20 @@ def generate_dynamic_meta_description(page_type, context):
     Must-have #1: Unique dynamic meta descriptions derived from editorial content.
     """
     if page_type == "groomer":
+        name = str(context.get("name", "")).strip()
+        city = str(context.get("city", "")).strip()
+        state = str(context.get("state", "")).strip()
         desc = str(context.get("description", "")).strip()
+
         if desc and len(desc) >= 50:
-            return desc[:155].rsplit(" ", 1)[0] + "..." if len(desc) > 155 else desc
-        # Fallback: leave empty so Google auto-generates from page content
+            # Prepend business name to ensure uniqueness even if descriptions overlap
+            prefix = f"{name} in {city}, {state}" if name and city else name
+            candidate = f"{prefix} — {desc}" if prefix else desc
+            return candidate[:155].rsplit(" ", 1)[0] + "..." if len(candidate) > 155 else candidate
+
+        # Fallback: structured meta from business data
+        if name and city and state:
+            return f"{name} — dog grooming services in {city}, {state}. Browse hours, reviews, and contact info."
         return ""
 
     elif page_type == "state":
@@ -509,6 +519,9 @@ def build_groomer_pages(env, groomers):
 
         meta_desc = generate_dynamic_meta_description("groomer", {
             "description": groomer.get("description", ""),
+            "name": groomer.get("name", ""),
+            "city": groomer.get("city", ""),
+            "state": groomer.get("state", ""),
         })
 
         html = template.render(
@@ -837,15 +850,20 @@ def validate_build(groomers):
     """Build-time content validation — warn on data quality issues."""
     warnings = 0
 
-    # Check for duplicate meta descriptions (via description field)
+    # Check for duplicate meta descriptions (using generated meta descriptions)
     descriptions = {}
     for g in groomers:
-        desc = g.get("description", "").strip()[:155]
-        if desc and desc in descriptions:
-            print(f"  WARNING: Duplicate meta description between '{g['name']}' and '{descriptions[desc]}'")
+        meta_desc = generate_dynamic_meta_description("groomer", {
+            "description": g.get("description", ""),
+            "name": g.get("name", ""),
+            "city": g.get("city", ""),
+            "state": g.get("state", ""),
+        })
+        if meta_desc and meta_desc in descriptions:
+            print(f"  WARNING: Duplicate meta description between '{g['name']}' and '{descriptions[meta_desc]}'")
             warnings += 1
-        elif desc:
-            descriptions[desc] = g["name"]
+        elif meta_desc:
+            descriptions[meta_desc] = g["name"]
 
     # Check for thin descriptions
     thin_count = sum(1 for g in groomers if len(str(g.get("description", "")).strip()) < config.MIN_DESCRIPTION_LENGTH)
