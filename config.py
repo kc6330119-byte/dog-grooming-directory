@@ -181,7 +181,7 @@ CATEGORIES = [
 ]
 
 # Google Analytics
-GA_MEASUREMENT_ID = os.getenv("GA_MEASUREMENT_ID", "")
+GA_MEASUREMENT_ID = os.getenv("GA_MEASUREMENT_ID", "G-GLHVWDC9HQ")
 
 # SEO Settings
 DEFAULT_META_TITLE = f"{SITE_NAME} - Find Dog Groomers Near You"
