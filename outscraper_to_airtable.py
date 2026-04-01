@@ -12,6 +12,7 @@ import pandas as pd
 import re
 import json
 import os
+import sys
 from datetime import datetime
 from slugify import slugify
 
@@ -21,9 +22,13 @@ from slugify import slugify
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-OUTSCRAPER_FILE = os.path.join(BASE_DIR, "Outscraper-20260331065259m1d_pet_groomer.xlsx")
+DEFAULT_OUTSCRAPER_FILE = os.path.join(BASE_DIR, "Outscraper-20260331065259m1d_pet_groomer.xlsx")
 OUTPUT_FILE = os.path.join(BASE_DIR, "Groomers_CLEAN.csv")
 DUPLICATES_FILE = os.path.join(BASE_DIR, "Groomers_DUPLICATES.csv")
+
+# Accept one or more --file args; fall back to default
+_file_args = [sys.argv[i+1] for i, a in enumerate(sys.argv[:-1]) if a == "--file"]
+INPUT_FILES = [os.path.join(BASE_DIR, f) for f in _file_args] if _file_args else [DEFAULT_OUTSCRAPER_FILE]
 
 # ==============================
 # LOAD DATA
@@ -33,7 +38,9 @@ print("=" * 60)
 print("Dog Groomer Locator — Outscraper ETL Pipeline")
 print("=" * 60)
 
-df = pd.read_excel(OUTSCRAPER_FILE)
+frames = [pd.read_excel(f) for f in INPUT_FILES]
+df = pd.concat(frames, ignore_index=True) if len(frames) > 1 else frames[0]
+print(f"  Input files: {[os.path.basename(f) for f in INPUT_FILES]}")
 print(f"\nOriginal Outscraper rows: {len(df)}")
 
 df.columns = df.columns.str.strip().str.lower()
