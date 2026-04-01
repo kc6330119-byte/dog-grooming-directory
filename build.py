@@ -221,18 +221,35 @@ def fetch_blog_posts():
                 continue
 
             title = fields.get("Title", "")
-            author_key = fields.get("Author Key", config.DEFAULT_AUTHOR_KEY)
-            author_info = config.AUTHORS.get(author_key, config.AUTHORS[config.DEFAULT_AUTHOR_KEY])
+
+            # Support both "Author Key" (config lookup) and direct "Author"/"Author Bio" fields
+            author_key = fields.get("Author Key", "")
+            if author_key and author_key in config.AUTHORS:
+                author_info = config.AUTHORS[author_key]
+                author_name = author_info["name"]
+                author_credentials = author_info["credentials"]
+                author_bio_text = author_info["bio"]
+            else:
+                # Use direct fields from Airtable
+                author_name = fields.get("Author", "") or config.AUTHORS[config.DEFAULT_AUTHOR_KEY]["name"]
+                author_bio_text = fields.get("Author Bio", "") or config.AUTHORS[config.DEFAULT_AUTHOR_KEY]["bio"]
+                # Try to match author name back to a config key for credentials
+                author_key = config.DEFAULT_AUTHOR_KEY
+                for key, info in config.AUTHORS.items():
+                    if info["name"].lower() == author_name.lower():
+                        author_key = key
+                        break
+                author_credentials = config.AUTHORS.get(author_key, config.AUTHORS[config.DEFAULT_AUTHOR_KEY])["credentials"]
 
             post = {
                 "title": title,
                 "slug": (fields.get("Slug", "") or slugify(title)).strip(),
                 "content": fields.get("Content", ""),
                 "excerpt": fields.get("Excerpt", ""),
-                "author": author_info["name"],
+                "author": author_name,
                 "author_key": author_key,
-                "author_credentials": author_info["credentials"],
-                "author_bio": author_info["bio"],
+                "author_credentials": author_credentials,
+                "author_bio": author_bio_text,
                 "publish_date": fields.get("Publish Date", ""),
                 "modified_date": fields.get("Modified Date", fields.get("Publish Date", "")),
                 "featured_image": fields.get("Featured Image", ""),
