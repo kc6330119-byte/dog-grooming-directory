@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
-Dog Groomer Locator — Upload Clean CSV to Airtable
+Dog Groomer Locator — Upload Clean CSV to Airtable (Upsert)
 
-Reads Groomers_VALIDATED.csv and batch-uploads to the Airtable Groomers table.
-Clears existing placeholder records first.
+Reads Groomers_VALIDATED.csv and upserts to the Airtable Groomers table.
+Matches existing records by Google Maps URL:
+  - Existing records: updates operational fields, preserves editorial fields
+  - New records: creates full record
 
 Usage:
   python3 upload_to_airtable.py          # Dry run
@@ -43,6 +45,12 @@ FIELD_MAP = {
 # Fields to skip (not in Airtable schema)
 SKIP_FIELDS = {"Slug"}
 
+# Match key for upsert
+MATCH_KEY = "Google Maps URL"
+
+# Fields to preserve on existing records (never overwrite these on update)
+PRESERVE_FIELDS = {"Name", "Decription", "Featured", "Date Added"}
+
 
 def csv_to_airtable_fields(row):
     """Convert a CSV row to Airtable-compatible field dict."""
@@ -81,15 +89,57 @@ def csv_to_airtable_fields(row):
     return fields
 
 
+def fetch_all_records(base_url, headers):
+    """Fetch all existing Airtable records, paginating through all pages."""
+    records = []
+    params = {}
+    while True:
+        resp = requests.get(base_url, headers=headers, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+        records.extend(data.get("records", []))
+        offset = data.get("offset")
+        if not offset:
+            break
+        params = {"offset": offset}
+        time.sleep(0.25)
+    return records
+
+
+def build_existing_index(records):
+    """Build a dict of Google Maps URL -> (record_id, fields) from Airtable records."""
+    index = {}
+    for rec in records:
+        fields = rec.get("fields", {})
+        gmap_url = fields.get(MATCH_KEY)
+        if gmap_url:
+            index[gmap_url] = {"id": rec["id"], "fields": fields}
+    return index
+
+
+def compute_update_fields(new_fields, existing_fields):
+    """Return only fields that should be updated (excludes preserved fields, unchanged values)."""
+    update = {}
+    for key, val in new_fields.items():
+        if key in PRESERVE_FIELDS:
+            continue
+        if key == MATCH_KEY:
+            continue
+        existing_val = existing_fields.get(key)
+        if existing_val != val:
+            update[key] = val
+    return update
+
+
 def main():
     apply_mode = "--apply" in sys.argv
 
     print("=" * 60)
-    print("Dog Groomer Locator — Airtable Upload")
+    print("Dog Groomer Locator — Airtable Upsert")
     print("=" * 60)
 
     df = pd.read_csv(INPUT_FILE)
-    print(f"\nRecords to upload: {len(df)}")
+    print(f"\nCSV records: {len(df)}")
 
     base_url = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_TABLE_NAME}"
     headers = {
@@ -97,65 +147,108 @@ def main():
         "Content-Type": "application/json",
     }
 
-    # Check existing records
-    resp = requests.get(base_url, headers=headers)
-    existing = resp.json().get("records", [])
-    print(f"Existing Airtable records: {len(existing)}")
+    # Fetch all existing records and index by Google Maps URL
+    print("Fetching existing Airtable records...")
+    existing_records = fetch_all_records(base_url, headers)
+    existing_index = build_existing_index(existing_records)
+    print(f"Existing Airtable records: {len(existing_records)} ({len(existing_index)} with Google Maps URL)")
+
+    # Classify each CSV row as new, update, or unchanged
+    new_records = []
+    update_records = []
+    unchanged_count = 0
+
+    for _, row in df.iterrows():
+        fields = csv_to_airtable_fields(row)
+        gmap_url = fields.get(MATCH_KEY)
+
+        if not gmap_url:
+            new_records.append(fields)
+            continue
+
+        existing = existing_index.get(gmap_url)
+        if not existing:
+            new_records.append(fields)
+        else:
+            update_fields = compute_update_fields(fields, existing["fields"])
+            if update_fields:
+                update_records.append({"id": existing["id"], "fields": update_fields})
+            else:
+                unchanged_count += 1
+
+    print(f"\n  New:       {len(new_records)}")
+    print(f"  Update:    {len(update_records)}")
+    print(f"  Unchanged: {unchanged_count}")
 
     if not apply_mode:
-        sample = csv_to_airtable_fields(df.iloc[0])
-        print(f"\nSample record fields: {list(sample.keys())}")
-        print(f"\nDry run — would upload {len(df)} records to Airtable.")
-        print(f"Use --apply to upload.")
+        if new_records:
+            print(f"\nSample new record fields: {list(new_records[0].keys())}")
+        if update_records:
+            print(f"Sample update fields: {list(update_records[0]['fields'].keys())}")
+        print(f"\nDry run — use --apply to write changes to Airtable.")
         return
 
-    # Delete existing placeholder records
-    if existing:
-        print(f"\nDeleting {len(existing)} existing records...")
-        record_ids = [r["id"] for r in existing]
-        for i in range(0, len(record_ids), 10):
-            batch_ids = record_ids[i:i + 10]
-            params = "&".join(f"records[]={rid}" for rid in batch_ids)
-            requests.delete(f"{base_url}?{params}", headers=headers)
-        print(f"  Deleted {len(record_ids)} records")
-
-    # Prepare records for upload
-    all_fields = []
-    for _, row in df.iterrows():
-        all_fields.append(csv_to_airtable_fields(row))
-
-    # Batch upload with typecast (Airtable limit: 10 per batch, 5 requests/sec)
+    # Create new records in batches of 10
     batch_size = 10
-    total_batches = math.ceil(len(all_fields) / batch_size)
-    uploaded = 0
+    req_count = 0
+    created = 0
     errors = 0
 
-    print(f"\nUploading {len(all_fields)} records in {total_batches} batches...")
-    for i in range(0, len(all_fields), batch_size):
-        batch = all_fields[i:i + batch_size]
-        payload = {
-            "records": [{"fields": f} for f in batch],
-            "typecast": True,
-        }
-        resp = requests.post(base_url, headers=headers, json=payload)
-        if resp.status_code == 200:
-            uploaded += len(batch)
-        else:
-            errors += len(batch)
-            if uploaded == 0:
-                print(f"\nFirst batch failed: {resp.status_code} {resp.text[:300]}")
-                print(f"Sample record: {batch[0]}")
-                return
-            print(f"  Batch error at record {i}: {resp.status_code}")
+    if new_records:
+        total_batches = math.ceil(len(new_records) / batch_size)
+        print(f"\nCreating {len(new_records)} new records in {total_batches} batches...")
+        for i in range(0, len(new_records), batch_size):
+            batch = new_records[i:i + batch_size]
+            payload = {
+                "records": [{"fields": f} for f in batch],
+                "typecast": True,
+            }
+            resp = requests.post(base_url, headers=headers, json=payload)
+            req_count += 1
+            if resp.status_code == 200:
+                created += len(batch)
+            else:
+                errors += len(batch)
+                if created == 0:
+                    print(f"  First batch failed: {resp.status_code} {resp.text[:300]}")
+                    return
+                print(f"  Batch error at record {i}: {resp.status_code}")
 
-        if uploaded % 500 == 0 or (uploaded + errors) == len(all_fields):
-            print(f"  Uploaded {uploaded}/{len(all_fields)} records ({errors} errors)")
+            if req_count % 4 == 0:
+                time.sleep(1)
 
-        # Rate limit: ~4 batches/sec to stay under Airtable's 5 req/sec
-        if (i // batch_size) % 4 == 3:
-            time.sleep(1)
+        print(f"  Created {created} records ({errors} errors)")
 
-    print(f"\nUpload complete: {uploaded} records uploaded, {errors} errors")
+    # Update existing records in batches of 10
+    updated = 0
+    update_errors = 0
+
+    if update_records:
+        total_batches = math.ceil(len(update_records) / batch_size)
+        print(f"\nUpdating {len(update_records)} records in {total_batches} batches...")
+        for i in range(0, len(update_records), batch_size):
+            batch = update_records[i:i + batch_size]
+            payload = {
+                "records": [{"id": r["id"], "fields": r["fields"]} for r in batch],
+                "typecast": True,
+            }
+            resp = requests.patch(base_url, headers=headers, json=payload)
+            req_count += 1
+            if resp.status_code == 200:
+                updated += len(batch)
+            else:
+                update_errors += len(batch)
+                if updated == 0:
+                    print(f"  First update batch failed: {resp.status_code} {resp.text[:300]}")
+                    return
+                print(f"  Batch error at record {i}: {resp.status_code}")
+
+            if req_count % 4 == 0:
+                time.sleep(1)
+
+        print(f"  Updated {updated} records ({update_errors} errors)")
+
+    print(f"\nUpsert complete: {created} created, {updated} updated, {unchanged_count} unchanged, {errors + update_errors} errors")
 
 
 if __name__ == "__main__":
