@@ -7,3 +7,7 @@ Outscraper*.xlsx
 Outscraper*.csv
 *.xlsx
 data/*.csv
+outscraper_incoming/*
+!outscraper_incoming/.gitkeep
+outscraper_processed/*
+!outscraper_processed/.gitkeep
