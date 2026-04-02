@@ -1,3 +1,8 @@
 Name,City,State,classification,neg_score,pos_score,flags
-Boise Dog Barber Shop,Garden City,Idaho,LIKELY NOT GROOMER,5.0,0,NAME:barber shop
-Mini Manor Kennel,Saunderstown,Rhode Island,REVIEW NEEDED,2.0,0,NAME_MED:kennel
+Canal Street Veterinary Hospital,New Orleans,Louisiana,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Walker Animal Hospital,Walker,Louisiana,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Mandeville Animal Hospital,Mandeville,Louisiana,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Riverside Veterinary Hospital,Mandeville,Louisiana,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Prytania Veterinary Hospital,New Orleans,Louisiana,LIKELY NOT GROOMER,5.0,0,NAME:veterinary
+Scott Mill Animal Hospital,Jacksonville,Florida,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
+Forever Vets Animal Hospital at Baymeadows,Jacksonville,Florida,LIKELY NOT GROOMER,5.0,0,NAME:animal hospital
