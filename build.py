@@ -814,33 +814,55 @@ def build_static_pages(env, groomers=None):
         print(f"Built: {page['output']}")
 
 
-def build_newsletter_page(env):
-    """Build the /newsletter/sample prototype page from the markdown draft."""
+def build_newsletter_pages(env):
+    """Build newsletter landing page, archive page, and sample issue."""
+    output_dir = config.OUTPUT_DIR / "newsletter"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Newsletter landing page (/newsletter/index.html)
+    template = env.get_template("newsletter.html")
+    html = template.render(
+        page_title=f"Newsletter - {config.SITE_NAME}",
+        meta_description="Subscribe to the Dog Groomer Locator newsletter for monthly grooming tips, new listings, and seasonal coat care guides.",
+        request_path="/newsletter",
+    )
+    (output_dir / "index.html").write_text(html)
+    print("Built: newsletter/index.html")
+
+    # Newsletter archive page (/newsletter/archive.html)
+    template = env.get_template("newsletter-archive.html")
+    html = template.render(
+        page_title=f"Newsletter Archive - {config.SITE_NAME}",
+        meta_description="Browse past issues of the Dog Groomer Locator newsletter.",
+        request_path="/newsletter/archive",
+    )
+    (output_dir / "archive.html").write_text(html)
+    print("Built: newsletter/archive.html")
+
+    # Newsletter sample issue (/newsletter/sample.html)
     draft_path = Path("newsletter/issue-01-draft.md")
     if not draft_path.exists():
         print("Skipped: newsletter/sample (draft not found)")
-        return
+    else:
+        raw_md = draft_path.read_text(encoding="utf-8")
+        # Strip the HTML comment metadata block at the top
+        if raw_md.startswith("<!--"):
+            end = raw_md.find("-->")
+            if end != -1:
+                raw_md = raw_md[end + 3:].lstrip("\n")
 
-    raw_md = draft_path.read_text(encoding="utf-8")
-    # Strip the HTML comment metadata block at the top
-    if raw_md.startswith("<!--"):
-        end = raw_md.find("-->")
-        if end != -1:
-            raw_md = raw_md[end + 3:].lstrip("\n")
+        newsletter_html = Markup(md_lib.markdown(raw_md, extensions=["extra", "nl2br"]))
 
-    newsletter_html = Markup(md_lib.markdown(raw_md, extensions=["extra", "nl2br"]))
-
-    template = env.get_template("newsletter-sample.html")
-    html = template.render(
-        page_title=f"Newsletter Issue #1 Preview - {config.SITE_NAME}",
-        meta_description="Preview of the Dog Groomer Locator newsletter — grooming tips, new listings, and seasonal guides.",
-        request_path="/newsletter/sample",
-        noindex=True,
-        newsletter_html=newsletter_html,
-    )
-    output_dir = config.OUTPUT_DIR / "newsletter"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "sample.html").write_text(html)
+        template = env.get_template("newsletter-sample.html")
+        html = template.render(
+            page_title=f"Newsletter Issue #1 Preview - {config.SITE_NAME}",
+            meta_description="Preview of the Dog Groomer Locator newsletter — grooming tips, new listings, and seasonal guides.",
+            request_path="/newsletter/sample",
+            noindex=True,
+            newsletter_html=newsletter_html,
+        )
+        (output_dir / "sample.html").write_text(html)
+        print("Built: newsletter/sample.html")
 
     # Copy newsletter assets (logo, images) to output
     logo_path = Path("newsletter/NewsletterLogo.png")
@@ -854,8 +876,6 @@ def build_newsletter_page(env):
         for img in images_dir.iterdir():
             if img.is_file():
                 shutil.copy(img, dest_images / img.name)
-
-    print("Built: newsletter/sample.html")
 
 
 def download_groomer_images(groomers):
@@ -991,7 +1011,7 @@ def main():
     build_static_pages(env, groomers)
     build_blog_page(env, posts)
     build_post_pages(env, posts)
-    build_newsletter_page(env)
+    build_newsletter_pages(env)
 
     print("\nBuilding SEO files...")
     build_sitemap(groomers, posts)

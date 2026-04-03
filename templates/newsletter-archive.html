@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-16">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Newsletter Archive</h1>
+            <p class="text-lg text-gray-600">Browse past issues of the Dog Groomer Locator newsletter.</p>
+        </div>
+
+        <div class="space-y-4">
+            <a href="/newsletter/sample" class="flex items-center justify-between bg-white border border-gray-200 hover:border-violet-400 hover:shadow-sm rounded-xl px-6 py-4 transition-all group">
+                <div>
+                    <h2 class="font-semibold text-gray-900 group-hover:text-violet-700 transition-colors">Issue #1 — Spring Grooming Edition</h2>
+                    <p class="text-sm text-gray-500 mt-1">Grooming tips, new listings, and seasonal coat care guides.</p>
+                </div>
+                <svg class="w-5 h-5 text-gray-400 group-hover:text-violet-600 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+
+        <div class="text-center mt-12">
+            <p class="text-gray-500 text-sm mb-4">Don't miss future issues.</p>
+            <a href="/newsletter" class="inline-flex items-center gap-2 px-6 py-2.5 bg-violet-600 text-white font-semibold text-sm rounded-lg hover:bg-violet-700 transition-colors">
+                Subscribe to the Newsletter
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
