@@ -46,6 +46,11 @@
   status = 200
 
 [[redirects]]
+  from = "/newsletter/sample"
+  to = "/newsletter/sample.html"
+  status = 200
+
+[[redirects]]
   from = "/success"
   to = "/success/index.html"
   status = 200

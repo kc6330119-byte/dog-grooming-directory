@@ -814,6 +814,36 @@ def build_static_pages(env, groomers=None):
         print(f"Built: {page['output']}")
 
 
+def build_newsletter_page(env):
+    """Build the /newsletter/sample prototype page from the markdown draft."""
+    draft_path = Path("newsletter/issue-01-draft.md")
+    if not draft_path.exists():
+        print("Skipped: newsletter/sample (draft not found)")
+        return
+
+    raw_md = draft_path.read_text(encoding="utf-8")
+    # Strip the HTML comment metadata block at the top
+    if raw_md.startswith("<!--"):
+        end = raw_md.find("-->")
+        if end != -1:
+            raw_md = raw_md[end + 3:].lstrip("\n")
+
+    newsletter_html = Markup(md_lib.markdown(raw_md, extensions=["extra", "nl2br"]))
+
+    template = env.get_template("newsletter-sample.html")
+    html = template.render(
+        page_title=f"Newsletter Issue #1 Preview - {config.SITE_NAME}",
+        meta_description="Preview of the Dog Groomer Locator newsletter — grooming tips, new listings, and seasonal guides.",
+        request_path="/newsletter/sample",
+        noindex=True,
+        newsletter_html=newsletter_html,
+    )
+    output_dir = config.OUTPUT_DIR / "newsletter"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "sample.html").write_text(html)
+    print("Built: newsletter/sample.html")
+
+
 def download_groomer_images(groomers):
     """Download external photo URLs locally to avoid Google Places URL expiry."""
     images_dir = config.OUTPUT_DIR / "static" / "images"
@@ -947,6 +977,7 @@ def main():
     build_static_pages(env, groomers)
     build_blog_page(env, posts)
     build_post_pages(env, posts)
+    build_newsletter_page(env)
 
     print("\nBuilding SEO files...")
     build_sitemap(groomers, posts)
