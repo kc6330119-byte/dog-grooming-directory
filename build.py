@@ -841,6 +841,20 @@ def build_newsletter_page(env):
     output_dir = config.OUTPUT_DIR / "newsletter"
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "sample.html").write_text(html)
+
+    # Copy newsletter assets (logo, images) to output
+    logo_path = Path("newsletter/NewsletterLogo.png")
+    if logo_path.exists():
+        shutil.copy(logo_path, output_dir / "NewsletterLogo.png")
+
+    images_dir = Path("newsletter/images")
+    if images_dir.is_dir():
+        dest_images = output_dir / "images"
+        dest_images.mkdir(parents=True, exist_ok=True)
+        for img in images_dir.iterdir():
+            if img.is_file():
+                shutil.copy(img, dest_images / img.name)
+
     print("Built: newsletter/sample.html")
 
 
