@@ -12,6 +12,7 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
+import openpyxl
 import requests
 import markdown as md_lib
 from jinja2 import Environment, FileSystemLoader
@@ -661,7 +662,7 @@ def build_search_index(groomers):
     print(f"Built: search-index.json ({len(index)} groomers)")
 
 
-def build_sitemap(groomers, posts):
+def build_sitemap(groomers, posts, breeds=None):
     """Generate sitemap.xml with per-page lastmod dates.
 
     Must-have #8: Sitemap with actual lastmod dates, not just today's build date.
@@ -678,6 +679,9 @@ def build_sitemap(groomers, posts):
         (f"{config.SITE_URL}/privacy.html", "0.3", today),
         (f"{config.SITE_URL}/terms.html", "0.3", today),
     ]
+
+    if breeds:
+        entries.append((f"{config.SITE_URL}/dog-grooming-guide.html", "0.8", today))
 
     grouped = group_by_state(groomers)
     for state in config.US_STATES:
@@ -878,6 +882,69 @@ def build_newsletter_pages(env):
                 shutil.copy(img, dest_images / img.name)
 
 
+def load_breed_guide():
+    """Load breed grooming guide data from the master xlsx file."""
+    xlsx_path = config.DATA_DIR / "dog_grooming_master.xlsx"
+    if not xlsx_path.exists():
+        print("  Breed guide xlsx not found, skipping.")
+        return []
+
+    wb = openpyxl.load_workbook(xlsx_path, read_only=True)
+    ws = wb[wb.sheetnames[0]]
+    rows = list(ws.iter_rows(values_only=True))
+    wb.close()
+
+    if len(rows) < 2:
+        return []
+
+    breeds = []
+    for row in rows[1:]:
+        breed = {
+            "name": (row[0] or "").strip(),
+            "coat_type": (row[1] or "").strip(),
+            "shedding_level": (row[2] or "").strip(),
+            "grooming_frequency": (row[3] or "").strip(),
+            "best_grooming": (row[4] or "").strip(),
+            "why": (row[5] or "").strip(),
+            "special_care": (row[6] or "").strip(),
+            "professional_grooming": (row[7] or "").strip(),
+            "bathing_frequency": (row[8] or "").strip(),
+            "hypoallergenic": (row[9] or "").strip(),
+        }
+        if breed["name"]:
+            breeds.append(breed)
+
+    breeds.sort(key=lambda b: b["name"])
+    print(f"Loaded {len(breeds)} breeds from grooming guide.")
+    return breeds
+
+
+def build_breed_guide(env, breeds):
+    """Build the breed grooming guide page."""
+    if not breeds:
+        print("Skipped: breed guide (no data)")
+        return
+
+    template = env.get_template("breed-guide.html")
+
+    # Group by coat type and shedding level for the template
+    coat_types = sorted(set(b["coat_type"] for b in breeds))
+    shedding_levels = sorted(set(b["shedding_level"] for b in breeds if b["shedding_level"]))
+
+    html = template.render(
+        breeds=breeds,
+        coat_types=coat_types,
+        shedding_levels=shedding_levels,
+        page_title=f"Dog Breed Grooming Guide - {config.SITE_NAME}",
+        meta_description=f"Complete grooming guide for {len(breeds)} dog breeds organized by coat type. Learn grooming routines, shedding levels, bathing frequency, and special care needs for every coat type.",
+        request_path="/dog-grooming-guide.html",
+    )
+
+    output_path = config.OUTPUT_DIR / "dog-grooming-guide.html"
+    output_path.write_text(html)
+    print(f"Built: dog-grooming-guide.html ({len(breeds)} breeds)")
+
+
 def download_groomer_images(groomers):
     """Download external photo URLs locally to avoid Google Places URL expiry."""
     images_dir = config.OUTPUT_DIR / "static" / "images"
@@ -1000,6 +1067,9 @@ def main():
     print("\nFetching blog posts...")
     posts = fetch_blog_posts()
 
+    print("\nLoading breed guide...")
+    breeds = load_breed_guide()
+
     env = create_jinja_env()
 
     print("\nBuilding pages...")
@@ -1012,9 +1082,10 @@ def main():
     build_blog_page(env, posts)
     build_post_pages(env, posts)
     build_newsletter_pages(env)
+    build_breed_guide(env, breeds)
 
     print("\nBuilding SEO files...")
-    build_sitemap(groomers, posts)
+    build_sitemap(groomers, posts, breeds)
     build_robots()
     copy_ads_txt()
     build_search_index(groomers)

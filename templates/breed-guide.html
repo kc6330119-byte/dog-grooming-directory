@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+    .coat-tab.active, .shedding-tab.active {
+        background-color: var(--color-primary);
+        color: white;
+    }
+    .breed-card { transition: opacity 0.2s ease; }
+    .breed-card.hidden-breed { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Header -->
+    <div class="text-center mb-10">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Dog Breed Grooming Guide</h1>
+        <p class="text-gray-600 max-w-2xl mx-auto">Grooming routines, tips, and special care needs for {{ breeds|length }} popular dog breeds, organized by coat type.</p>
+    </div>
+
+    <!-- Coat Type Filter Tabs -->
+    <div class="flex flex-wrap justify-center gap-2 mb-8" id="coat-filters">
+        <button class="coat-tab active px-4 py-2 text-sm font-medium rounded-full border border-gray-200 hover:bg-violet-600 hover:text-white transition-colors" data-coat="all">
+            All
+        </button>
+        {% for ct in coat_types %}
+        <button class="coat-tab px-4 py-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-violet-600 hover:text-white transition-colors" data-coat="{{ ct }}">
+            {{ ct }}
+        </button>
+        {% endfor %}
+    </div>
+
+    <!-- Shedding Level Filter -->
+    <div class="flex flex-wrap justify-center gap-2 mb-8" id="shedding-filters">
+        <button class="shedding-tab active px-4 py-2 text-sm font-medium rounded-full border border-gray-200 hover:bg-violet-600 hover:text-white transition-colors" data-shedding="all">
+            All Shedding
+        </button>
+        {% for sl in shedding_levels %}
+        <button class="shedding-tab px-4 py-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-violet-600 hover:text-white transition-colors" data-shedding="{{ sl }}">
+            {{ sl }}
+        </button>
+        {% endfor %}
+    </div>
+
+    <!-- Breed Count -->
+    <p class="text-center text-sm text-gray-400 mb-6" id="breed-count">Showing {{ breeds|length }} breeds</p>
+
+    <!-- Breed Card Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="breed-grid">
+        {% for breed in breeds %}
+        <div class="breed-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col" data-coat="{{ breed.coat_type }}" data-shedding="{{ breed.shedding_level }}">
+            <div class="p-5 flex flex-col flex-grow">
+                <!-- Breed Name + Coat Badge -->
+                <div class="flex items-start justify-between gap-2 mb-3">
+                    <h2 class="font-semibold text-gray-900 text-lg leading-tight">{{ breed.name }}</h2>
+                    <span class="flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full
+                        {% if breed.coat_type == 'Short' %}bg-green-100 text-green-800
+                        {% elif breed.coat_type == 'Curly' %}bg-purple-100 text-purple-800
+                        {% elif breed.coat_type == 'Double' %}bg-blue-100 text-blue-800
+                        {% elif breed.coat_type == 'Long' %}bg-pink-100 text-pink-800
+                        {% elif breed.coat_type == 'Wire' %}bg-amber-100 text-amber-800
+                        {% elif breed.coat_type == 'Hairless' %}bg-gray-100 text-gray-800
+                        {% elif breed.coat_type == 'Silky' %}bg-rose-100 text-rose-800
+                        {% elif breed.coat_type == 'Short/Long' %}bg-emerald-100 text-emerald-800
+                        {% elif breed.coat_type == 'Short/Wire' %}bg-orange-100 text-orange-800
+                        {% else %}bg-violet-100 text-violet-800{% endif %}">
+                        {{ breed.coat_type }}
+                    </span>
+                </div>
+
+                <!-- Info Badges Row -->
+                <div class="flex flex-wrap gap-1.5 mb-3">
+                    {% if breed.shedding_level %}
+                    <span class="inline-block text-xs px-2 py-0.5 rounded-full border
+                        {% if breed.shedding_level in ['High', 'Very High'] %}bg-red-50 text-red-700 border-red-200
+                        {% elif breed.shedding_level == 'Moderate' %}bg-yellow-50 text-yellow-700 border-yellow-200
+                        {% elif breed.shedding_level == 'Low' %}bg-green-50 text-green-700 border-green-200
+                        {% else %}bg-gray-50 text-gray-600 border-gray-200{% endif %}">
+                        Shedding: {{ breed.shedding_level }}
+                    </span>
+                    {% endif %}
+                    {% if breed.hypoallergenic and breed.hypoallergenic == 'Yes' %}
+                    <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">Hypoallergenic</span>
+                    {% elif breed.hypoallergenic and breed.hypoallergenic == 'Low' %}
+                    <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-teal-50 text-teal-600 border border-teal-200">Low Allergen</span>
+                    {% endif %}
+                    {% if breed.professional_grooming == 'Recommended' %}
+                    <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">Pro Grooming Rec.</span>
+                    {% endif %}
+                </div>
+
+                <!-- Grooming Routine -->
+                <div class="mb-3">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Grooming</p>
+                    <p class="text-sm text-gray-700">{{ breed.best_grooming }}</p>
+                    {% if breed.grooming_frequency %}
+                    <p class="text-xs text-gray-500 mt-0.5">Frequency: {{ breed.grooming_frequency }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Why -->
+                <div class="mb-3">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Why</p>
+                    <p class="text-sm text-gray-700">{{ breed.why }}</p>
+                </div>
+
+                <!-- Bathing -->
+                {% if breed.bathing_frequency %}
+                <div class="mb-3">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Bathing</p>
+                    <p class="text-sm text-gray-700">{{ breed.bathing_frequency }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Special Care Tags -->
+                {% if breed.special_care %}
+                <div class="mt-auto pt-3 border-t border-gray-100">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Special Care</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        {% for tag in breed.special_care.split(',') %}
+                        <span class="inline-block text-xs bg-violet-50 text-violet-700 px-2 py-0.5 rounded-full border border-violet-200">{{ tag.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center mt-12 py-8 bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl">
+        <h2 class="text-xl font-bold text-gray-900 mb-2">Find a Groomer for Your Breed</h2>
+        <p class="text-gray-600 text-sm mb-4">Browse our directory of professional dog groomers across America.</p>
+        <a href="/" class="inline-block px-6 py-3 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 transition-colors">
+            Browse Groomers
+        </a>
+    </div>
+</div>
+
+<!-- Filter Script -->
+<script>
+(function() {
+    var coatTabs = document.querySelectorAll('.coat-tab');
+    var sheddingTabs = document.querySelectorAll('.shedding-tab');
+    var cards = document.querySelectorAll('.breed-card');
+    var countEl = document.getElementById('breed-count');
+    var total = cards.length;
+    var activeCoat = 'all';
+    var activeShedding = 'all';
+
+    function filterCards() {
+        var visible = 0;
+        cards.forEach(function(card) {
+            var coatMatch = activeCoat === 'all' || card.dataset.coat === activeCoat;
+            var sheddingMatch = activeShedding === 'all' || card.dataset.shedding === activeShedding;
+            if (coatMatch && sheddingMatch) {
+                card.classList.remove('hidden-breed');
+                visible++;
+            } else {
+                card.classList.add('hidden-breed');
+            }
+        });
+        countEl.textContent = 'Showing ' + visible + ' of ' + total + ' breeds';
+    }
+
+    coatTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            activeCoat = this.dataset.coat;
+            coatTabs.forEach(function(t) { t.classList.remove('active'); });
+            this.classList.add('active');
+            filterCards();
+        });
+    });
+
+    sheddingTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            activeShedding = this.dataset.shedding;
+            sheddingTabs.forEach(function(t) { t.classList.remove('active'); });
+            this.classList.add('active');
+            filterCards();
+        });
+    });
+})();
+</script>
+{% endblock %}
