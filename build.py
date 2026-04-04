@@ -883,10 +883,18 @@ def build_newsletter_pages(env):
 
 
 def load_breed_guide():
-    """Load breed grooming guide data from the master xlsx file."""
+    """Load breed grooming guide data from xlsx, falling back to JSON for CI/Netlify."""
+    import json as _json
     xlsx_path = config.DATA_DIR / "dog_grooming_master.xlsx"
+    json_path = config.DATA_DIR / "breed_grooming_guide.json"
     if not xlsx_path.exists():
-        print("  Breed guide xlsx not found, skipping.")
+        if json_path.exists():
+            with open(json_path) as f:
+                breeds = _json.load(f)
+            breeds.sort(key=lambda b: b.get("name", ""))
+            print(f"Loaded {len(breeds)} breeds from breed_grooming_guide.json (xlsx not found).")
+            return breeds
+        print("  Breed guide data not found, skipping.")
         return []
 
     wb = openpyxl.load_workbook(xlsx_path, read_only=True)
