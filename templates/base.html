@@ -112,13 +112,12 @@
                                 <span>{{ cat.name }}</span>
                             </a>
                             {% endfor %}
-                            <hr class="my-1 border-gray-100">
-                            <a href="/dog-grooming-guide.html" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-violet-50 hover:text-violet-700">
-                                <span class="text-base">🐾</span>
-                                <span>Breed Grooming Guide</span>
-                            </a>
                         </div>
                     </div>
+
+                    <a href="/dog-grooming-guide.html" class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-violet-600 hover:text-violet-700 rounded-md hover:bg-violet-50 border border-violet-200 hover:border-violet-300 transition-colors">
+                        🐾 Breed Guide
+                    </a>
 
                     <a href="/blog.html" class="text-gray-700 hover:text-violet-600 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50">Blog</a>
                     <a href="/newsletter" class="text-gray-700 hover:text-violet-600 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50">Newsletter</a>
@@ -173,7 +172,8 @@
                     {{ cat.icon }} {{ cat.name }}
                 </a>
                 {% endfor %}
-                <a href="/dog-grooming-guide.html" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-violet-50 hover:text-violet-700 rounded-md">
+                <hr class="my-2 border-gray-100">
+                <a href="/dog-grooming-guide.html" class="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-violet-600 hover:bg-violet-50 rounded-md border border-violet-200">
                     🐾 Breed Grooming Guide
                 </a>
                 <hr class="my-2 border-gray-100">
