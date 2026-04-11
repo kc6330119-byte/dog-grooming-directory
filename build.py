@@ -214,11 +214,17 @@ def fetch_blog_posts():
         table = api.table(config.AIRTABLE_BASE_ID, config.AIRTABLE_BLOG_TABLE_NAME)
         records = table.all()
 
+        today = datetime.now().strftime("%Y-%m-%d")
         posts = []
         for record in records:
             fields = record.get("fields", {})
 
             if fields.get("Status") != "Published":
+                continue
+
+            # Skip posts with a future publish date
+            publish_date = fields.get("Publish Date", "")
+            if publish_date and publish_date > today:
                 continue
 
             title = fields.get("Title", "")
@@ -715,6 +721,8 @@ def build_sitemap(groomers, posts, breeds=None):
     for post in posts:
         if post.get("slug"):
             post_lastmod = post.get("modified_date", post.get("publish_date", today)) or today
+            if post_lastmod > today:
+                post_lastmod = today
             entries.append((f"{config.SITE_URL}/blog/{post['slug']}.html", "0.8", post_lastmod))
 
     sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n'
