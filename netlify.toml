@@ -64,3 +64,95 @@
   from = "/success/"
   to = "/success/index.html"
   status = 200
+
+# Force 301 from .html to extensionless (canonical URL cleanup).
+# Prevents Google from indexing both /foo and /foo.html as separate URLs.
+[[redirects]]
+  from = "/groomer/*.html"
+  to = "/groomer/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/state/*/*.html"
+  to = "/state/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/state/*.html"
+  to = "/state/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/category/*.html"
+  to = "/category/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/*.html"
+  to = "/blog/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/about.html"
+  to = "/about"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/contact.html"
+  to = "/contact"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/privacy.html"
+  to = "/privacy"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/terms.html"
+  to = "/terms"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/disclaimer.html"
+  to = "/disclaimer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/editorial-standards.html"
+  to = "/editorial-standards"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/submit.html"
+  to = "/submit"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog.html"
+  to = "/blog"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/dog-grooming-guide.html"
+  to = "/dog-grooming-guide"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/newsletter.html"
+  to = "/newsletter"
+  status = 301
+  force = true
