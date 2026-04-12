@@ -20,7 +20,7 @@
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
 
-            <form id="submit-form" name="listing-submission" method="POST" action="/submit.html"
+            <form id="submit-form" name="listing-submission" method="POST" action="/submit"
                   data-netlify="true" netlify-honeypot="bot-field" class="space-y-6">
                 <input type="hidden" name="form-name" value="listing-submission">
                 <p class="hidden">
@@ -228,14 +228,14 @@ document.getElementById('submit-form').addEventListener('submit', async function
 
     try {
         const formData = new FormData(form);
-        const response = await fetch('/submit.html', {
+        const response = await fetch('/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams(formData).toString()
         });
 
         if (response.ok) {
-            window.location.href = '/success/index.html';
+            window.location.href = '/success/';
         } else {
             throw new Error('Submission failed');
         }

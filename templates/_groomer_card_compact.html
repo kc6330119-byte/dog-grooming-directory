@@ -1,7 +1,7 @@
 <!-- Compact groomer list item — used on state pages with 50+ listings to reduce HTML size for crawl efficiency -->
 <div class="flex items-center justify-between py-2.5 border-b border-gray-100 hover:bg-gray-50 group" data-type="{{ groomer.type }}" data-state="{{ groomer.state }}">
     <div class="min-w-0 flex-1">
-        <a href="/groomer/{{ groomer.slug }}.html"
+        <a href="/groomer/{{ groomer.slug }}"
            class="font-medium text-gray-900 hover:text-violet-600 transition-colors text-sm truncate block">
             {{ groomer.name }}
         </a>
@@ -23,7 +23,7 @@
         {% if groomer.rating %}
         <span class="text-xs text-gray-500">★ {{ groomer.rating }}</span>
         {% endif %}
-        <a href="/groomer/{{ groomer.slug }}.html"
+        <a href="/groomer/{{ groomer.slug }}"
            class="text-xs text-violet-600 hover:text-violet-700 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
             View →
         </a>

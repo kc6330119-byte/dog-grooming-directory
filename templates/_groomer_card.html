@@ -42,11 +42,11 @@
     <!-- Content -->
     <div class="p-4 flex flex-col flex-grow">
         <h3 class="font-semibold text-gray-900 leading-tight mb-1">
-            <a href="/groomer/{{ groomer.slug }}.html" class="hover:text-violet-600 transition-colors line-clamp-2">{{ groomer.name }}</a>
+            <a href="/groomer/{{ groomer.slug }}" class="hover:text-violet-600 transition-colors line-clamp-2">{{ groomer.name }}</a>
         </h3>
 
         <p class="text-sm text-gray-500 mb-2">
-            📍 <a href="/state/{{ groomer.state_slug }}.html" class="hover:text-violet-600">{{ groomer.city }}, {{ groomer.state }}</a>
+            📍 <a href="/state/{{ groomer.state_slug }}" class="hover:text-violet-600">{{ groomer.city }}, {{ groomer.state }}</a>
         </p>
 
         {% if groomer.rating %}
@@ -68,7 +68,7 @@
             <span class="inline-block text-xs bg-violet-50 text-violet-700 px-2 py-0.5 rounded-full border border-violet-200 mb-3">{{ groomer.type }}</span>
             {% endif %}
 
-            <a href="/groomer/{{ groomer.slug }}.html"
+            <a href="/groomer/{{ groomer.slug }}"
                class="block text-center text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 py-2 px-4 rounded-lg transition-colors">
                 View Details
             </a>

@@ -17,7 +17,7 @@
             "@type": "ListItem",
             "position": 2,
             "name": {{ state.name | tojson }},
-            "item": {{ (site_url ~ "/state/" ~ state.slug ~ ".html") | tojson }}
+            "item": {{ (site_url ~ "/state/" ~ state.slug) | tojson }}
         },
         {
             "@type": "ListItem",
@@ -38,7 +38,7 @@
         <nav class="text-sm text-violet-200 mb-3">
             <a href="/" class="hover:text-white">Home</a>
             <span class="mx-2">/</span>
-            <a href="/state/{{ state.slug }}.html" class="hover:text-white">{{ state.name }}</a>
+            <a href="/state/{{ state.slug }}" class="hover:text-white">{{ state.name }}</a>
             <span class="mx-2">/</span>
             <span>{{ city }}</span>
         </nav>
@@ -80,7 +80,7 @@
         <p class="text-gray-500 mb-8 max-w-md mx-auto">
             We're working on adding groomers in {{ city }}. Know of one? Help us grow the directory!
         </p>
-        <a href="/submit.html"
+        <a href="/submit"
            class="inline-block px-6 py-3 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 transition-colors">
             Submit a Groomer
         </a>
@@ -92,7 +92,7 @@
 <!-- Back to State -->
 <section class="bg-gray-50 border-t py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <a href="/state/{{ state.slug }}.html"
+        <a href="/state/{{ state.slug }}"
            class="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors">
             ← All Dog Groomers in {{ state.name }}
         </a>

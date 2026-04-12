@@ -43,7 +43,7 @@
             "@type": "SearchAction",
             "target": {
                 "@type": "EntryPoint",
-                "urlTemplate": {{ (site_url ~ "/state/{slug}.html") | tojson | safe }}
+                "urlTemplate": {{ (site_url ~ "/state/{slug}") | tojson | safe }}
             },
             "query-input": "required name=slug"
         }
@@ -107,7 +107,7 @@
                         </button>
                         <div class="absolute left-0 mt-1 w-60 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50 border border-gray-100 py-2">
                             {% for cat in categories %}
-                            <a href="/category/{{ cat.slug }}.html" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-violet-50 hover:text-violet-700">
+                            <a href="/category/{{ cat.slug }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-violet-50 hover:text-violet-700">
                                 <span class="text-base">{{ cat.icon }}</span>
                                 <span>{{ cat.name }}</span>
                             </a>
@@ -115,14 +115,14 @@
                         </div>
                     </div>
 
-                    <a href="/dog-grooming-guide.html" class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-violet-600 hover:text-violet-700 rounded-md hover:bg-violet-50 border border-violet-200 hover:border-violet-300 transition-colors">
+                    <a href="/dog-grooming-guide" class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-violet-600 hover:text-violet-700 rounded-md hover:bg-violet-50 border border-violet-200 hover:border-violet-300 transition-colors">
                         🐾 Breed Guide
                     </a>
 
-                    <a href="/blog.html" class="text-gray-700 hover:text-violet-600 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50">Blog</a>
+                    <a href="/blog" class="text-gray-700 hover:text-violet-600 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50">Blog</a>
                     <a href="/newsletter" class="text-gray-700 hover:text-violet-600 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50">Newsletter</a>
-                    <a href="/about.html" class="text-gray-700 hover:text-violet-600 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50">About</a>
-                    <a href="/contact.html" class="text-gray-700 hover:text-violet-600 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50">Contact</a>
+                    <a href="/about" class="text-gray-700 hover:text-violet-600 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50">About</a>
+                    <a href="/contact" class="text-gray-700 hover:text-violet-600 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50">Contact</a>
 
                     <div class="relative" id="search-container">
                         <button id="search-toggle" class="text-gray-700 hover:text-violet-600 p-2 rounded-md hover:bg-gray-50" aria-label="Search groomers">
@@ -139,7 +139,7 @@
                         </div>
                     </div>
 
-                    <a href="/submit.html" class="ml-2 px-4 py-2 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition-colors">
+                    <a href="/submit" class="ml-2 px-4 py-2 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition-colors">
                         + Submit a Listing
                     </a>
                 </div>
@@ -168,20 +168,20 @@
             <div class="px-3 pt-2 pb-3 space-y-1">
                 <p class="px-3 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">Browse</p>
                 {% for cat in categories %}
-                <a href="/category/{{ cat.slug }}.html" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-violet-50 hover:text-violet-700 rounded-md">
+                <a href="/category/{{ cat.slug }}" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-violet-50 hover:text-violet-700 rounded-md">
                     {{ cat.icon }} {{ cat.name }}
                 </a>
                 {% endfor %}
                 <hr class="my-2 border-gray-100">
-                <a href="/dog-grooming-guide.html" class="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-violet-600 hover:bg-violet-50 rounded-md border border-violet-200">
+                <a href="/dog-grooming-guide" class="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-violet-600 hover:bg-violet-50 rounded-md border border-violet-200">
                     🐾 Breed Grooming Guide
                 </a>
                 <hr class="my-2 border-gray-100">
-                <a href="/blog.html" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">Blog</a>
+                <a href="/blog" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">Blog</a>
                 <a href="/newsletter" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">Newsletter</a>
-                <a href="/about.html" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">About</a>
-                <a href="/contact.html" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">Contact</a>
-                <a href="/submit.html" class="block mx-3 my-2 px-4 py-2 bg-violet-600 text-white text-sm font-semibold rounded-lg text-center hover:bg-violet-700">
+                <a href="/about" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">About</a>
+                <a href="/contact" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">Contact</a>
+                <a href="/submit" class="block mx-3 my-2 px-4 py-2 bg-violet-600 text-white text-sm font-semibold rounded-lg text-center hover:bg-violet-700">
                     + Submit a Listing
                 </a>
             </div>
@@ -250,7 +250,7 @@
                     <h3 class="font-semibold mb-4 text-gray-100">Browse</h3>
                     <ul class="space-y-2 text-sm text-gray-400">
                         {% for cat in categories %}
-                        <li><a href="/category/{{ cat.slug }}.html" class="hover:text-white transition-colors">{{ cat.name }}</a></li>
+                        <li><a href="/category/{{ cat.slug }}" class="hover:text-white transition-colors">{{ cat.name }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -258,14 +258,14 @@
                 <div>
                     <h3 class="font-semibold mb-4 text-gray-100">Info</h3>
                     <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="/about.html" class="hover:text-white transition-colors">About</a></li>
-                        <li><a href="/contact.html" class="hover:text-white transition-colors">Contact</a></li>
+                        <li><a href="/about" class="hover:text-white transition-colors">About</a></li>
+                        <li><a href="/contact" class="hover:text-white transition-colors">Contact</a></li>
                         <li><a href="/newsletter" class="hover:text-white transition-colors">Newsletter</a></li>
-                        <li><a href="/submit.html" class="hover:text-white transition-colors">Submit a Listing</a></li>
-                        <li><a href="/disclaimer.html" class="hover:text-white transition-colors">Disclaimer</a></li>
-                        <li><a href="/editorial-standards.html" class="hover:text-white transition-colors">Editorial Standards</a></li>
-                        <li><a href="/privacy.html" class="hover:text-white transition-colors">Privacy Policy</a></li>
-                        <li><a href="/terms.html" class="hover:text-white transition-colors">Terms of Service</a></li>
+                        <li><a href="/submit" class="hover:text-white transition-colors">Submit a Listing</a></li>
+                        <li><a href="/disclaimer" class="hover:text-white transition-colors">Disclaimer</a></li>
+                        <li><a href="/editorial-standards" class="hover:text-white transition-colors">Editorial Standards</a></li>
+                        <li><a href="/privacy" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="/terms" class="hover:text-white transition-colors">Terms of Service</a></li>
                     </ul>
                 </div>
             </div>
@@ -304,7 +304,7 @@
         function renderResults(matches) {
             if (matches.length === 0) return '<p class="px-4 py-3 text-sm text-gray-400">No results found</p>';
             return matches.map(g => `
-                <a href="/groomer/${g.slug}.html" class="flex items-center gap-3 px-4 py-2.5 hover:bg-violet-50 transition-colors">
+                <a href="/groomer/${g.slug}" class="flex items-center gap-3 px-4 py-2.5 hover:bg-violet-50 transition-colors">
                     <span class="text-violet-400 text-sm">✂️</span>
                     <div>
                         <p class="text-sm font-medium text-gray-900">${g.name}</p>

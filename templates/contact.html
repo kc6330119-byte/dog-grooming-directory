@@ -14,7 +14,7 @@
                     Have a question, suggestion, or feedback? We'd love to hear from you.
                 </p>
 
-                <form id="contact-form" name="contact" method="POST" action="/contact.html"
+                <form id="contact-form" name="contact" method="POST" action="/contact"
                       data-netlify="true" netlify-honeypot="bot-field" class="space-y-5">
                     <input type="hidden" name="form-name" value="contact">
                     <p class="hidden">
@@ -71,7 +71,7 @@
                     Use our dedicated submission form — it only takes a couple of minutes and helps
                     pet owners across the country find great groomers.
                 </p>
-                <a href="/submit.html"
+                <a href="/submit"
                    class="inline-block px-6 py-3 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 transition-colors text-sm">
                     Submit a Dog Groomer →
                 </a>
@@ -120,14 +120,14 @@ document.getElementById('contact-form').addEventListener('submit', async functio
 
     try {
         const formData = new FormData(form);
-        const response = await fetch('/contact.html', {
+        const response = await fetch('/contact', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams(formData).toString()
         });
 
         if (response.ok) {
-            window.location.href = '/success/index.html';
+            window.location.href = '/success/';
         } else {
             throw new Error('Form submission failed');
         }

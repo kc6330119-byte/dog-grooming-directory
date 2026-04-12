@@ -130,7 +130,7 @@
         <p class="text-gray-500 mb-8 max-w-md mx-auto">
             Know of a dog groomer that belongs here? Help us grow the directory!
         </p>
-        <a href="/contact.html#submit"
+        <a href="/contact#submit"
            class="inline-block px-6 py-3 bg-violet-600 text-white font-semibold rounded-lg hover:bg-violet-700 transition-colors">
             Submit a Dog Groomer
         </a>
@@ -146,7 +146,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {% for cat in categories %}
             {% if cat.slug != category.slug %}
-            <a href="/category/{{ cat.slug }}.html"
+            <a href="/category/{{ cat.slug }}"
                class="flex items-center gap-2 bg-white border border-gray-200 hover:border-violet-400 hover:shadow-sm rounded-xl px-4 py-3 transition-all group">
                 <span class="text-xl">{{ cat.icon }}</span>
                 <span class="text-sm font-medium text-gray-700 group-hover:text-violet-700">{{ cat.name }}</span>
