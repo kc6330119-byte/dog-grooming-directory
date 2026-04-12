@@ -14,86 +14,39 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Pretty URL redirects
-[[redirects]]
-  from = "/contact"
-  to = "/contact.html"
-  status = 200
-
-[[redirects]]
-  from = "/about"
-  to = "/about.html"
-  status = 200
-
-[[redirects]]
-  from = "/privacy"
-  to = "/privacy.html"
-  status = 200
-
-[[redirects]]
-  from = "/terms"
-  to = "/terms.html"
-  status = 200
-
-[[redirects]]
-  from = "/disclaimer"
-  to = "/disclaimer.html"
-  status = 200
-
-[[redirects]]
-  from = "/editorial-standards"
-  to = "/editorial-standards.html"
-  status = 200
-
-[[redirects]]
-  from = "/newsletter/archive"
-  to = "/newsletter/archive.html"
-  status = 200
-
-[[redirects]]
-  from = "/newsletter/sample"
-  to = "/newsletter/sample.html"
-  status = 200
-
-[[redirects]]
-  from = "/success"
-  to = "/success/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/success/"
-  to = "/success/index.html"
-  status = 200
-
 # Force 301 from .html to extensionless (canonical URL cleanup).
 # Prevents Google from indexing both /foo and /foo.html as separate URLs.
+# IMPORTANT: These rules use placeholder syntax (:slug) instead of splats (*).
+# Splats don't match when followed by a literal suffix like .html — placeholders do.
+# These must come BEFORE the 200 pretty-URL rewrites below.
+
 [[redirects]]
-  from = "/groomer/*.html"
-  to = "/groomer/:splat"
+  from = "/groomer/:slug.html"
+  to = "/groomer/:slug"
   status = 301
   force = true
 
 [[redirects]]
-  from = "/state/*/*.html"
-  to = "/state/:splat"
+  from = "/state/:state_slug/:city_slug.html"
+  to = "/state/:state_slug/:city_slug"
   status = 301
   force = true
 
 [[redirects]]
-  from = "/state/*.html"
-  to = "/state/:splat"
+  from = "/state/:slug.html"
+  to = "/state/:slug"
   status = 301
   force = true
 
 [[redirects]]
-  from = "/category/*.html"
-  to = "/category/:splat"
+  from = "/category/:slug.html"
+  to = "/category/:slug"
   status = 301
   force = true
 
 [[redirects]]
-  from = "/blog/*.html"
-  to = "/blog/:splat"
+  from = "/blog/:slug.html"
+  to = "/blog/:slug"
   status = 301
   force = true
 
@@ -156,3 +109,54 @@
   to = "/newsletter"
   status = 301
   force = true
+
+# Pretty URL rewrites (extensionless → .html, served as 200)
+[[redirects]]
+  from = "/contact"
+  to = "/contact.html"
+  status = 200
+
+[[redirects]]
+  from = "/about"
+  to = "/about.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy"
+  to = "/privacy.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms"
+  to = "/terms.html"
+  status = 200
+
+[[redirects]]
+  from = "/disclaimer"
+  to = "/disclaimer.html"
+  status = 200
+
+[[redirects]]
+  from = "/editorial-standards"
+  to = "/editorial-standards.html"
+  status = 200
+
+[[redirects]]
+  from = "/newsletter/archive"
+  to = "/newsletter/archive.html"
+  status = 200
+
+[[redirects]]
+  from = "/newsletter/sample"
+  to = "/newsletter/sample.html"
+  status = 200
+
+[[redirects]]
+  from = "/success"
+  to = "/success/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/success/"
+  to = "/success/index.html"
+  status = 200
