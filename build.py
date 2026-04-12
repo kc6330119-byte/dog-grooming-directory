@@ -489,7 +489,7 @@ def build_state_pages(env, groomers):
             groomers=state_groomers,
             page_title=f"Dog Groomers in {state['name']} - {config.SITE_NAME}",
             meta_description=meta_desc,
-            request_path=f"/state/{state['slug']}.html",
+            request_path=f"/state/{state['slug']}",
             noindex=thin_state,
         )
 
@@ -529,7 +529,7 @@ def build_city_pages(env, groomers):
             city_intro=city_intro,
             page_title=f"Dog Groomers in {city}, {state_name} - {config.SITE_NAME}",
             meta_description=meta_desc,
-            request_path=f"/state/{state_slug}/{city_slug}.html",
+            request_path=f"/state/{state_slug}/{city_slug}",
             noindex=thin_city,
         )
 
@@ -565,7 +565,7 @@ def build_groomer_pages(env, groomers):
             related_groomers=related,
             page_title=f"{groomer['name']} - {groomer['city']}, {groomer['state']} - {config.SITE_NAME}",
             meta_description=meta_desc,
-            request_path=f"/groomer/{groomer['slug']}.html",
+            request_path=f"/groomer/{groomer['slug']}",
             noindex=thin,
         )
 
@@ -609,7 +609,7 @@ def build_category_pages(env, groomers):
             state_list=state_list,
             page_title=f"{category['name']} Dog Groomers - {config.SITE_NAME}",
             meta_description=meta_desc,
-            request_path=f"/category/{category['slug']}.html",
+            request_path=f"/category/{category['slug']}",
         )
 
         output_path = config.OUTPUT_DIR / "category" / f"{category['slug']}.html"
@@ -624,7 +624,7 @@ def build_blog_page(env, posts):
         posts=posts,
         page_title=f"Blog - {config.SITE_NAME}",
         meta_description="Tips, guides, and expert advice on dog grooming, coat care, and finding the right groomer for your pet.",
-        request_path="/blog.html",
+        request_path="/blog",
     )
     output_path = config.OUTPUT_DIR / "blog.html"
     output_path.write_text(html)
@@ -649,7 +649,7 @@ def build_post_pages(env, posts):
             all_posts=posts,
             page_title=f"{post['title']} - {config.SITE_NAME}",
             meta_description=meta_desc,
-            request_path=f"/blog/{post['slug']}.html",
+            request_path=f"/blog/{post['slug']}",
         )
         output_path = config.OUTPUT_DIR / "blog" / f"{post['slug']}.html"
         output_path.write_text(html)
@@ -677,17 +677,17 @@ def build_sitemap(groomers, posts, breeds=None):
 
     entries = [
         (f"{config.SITE_URL}/", "1.0", today),
-        (f"{config.SITE_URL}/blog.html", "0.8", today),
-        (f"{config.SITE_URL}/about.html", "0.5", today),
-        (f"{config.SITE_URL}/contact.html", "0.4", today),
-        (f"{config.SITE_URL}/disclaimer.html", "0.3", today),
-        (f"{config.SITE_URL}/editorial-standards.html", "0.3", today),
-        (f"{config.SITE_URL}/privacy.html", "0.3", today),
-        (f"{config.SITE_URL}/terms.html", "0.3", today),
+        (f"{config.SITE_URL}/blog", "0.8", today),
+        (f"{config.SITE_URL}/about", "0.5", today),
+        (f"{config.SITE_URL}/contact", "0.4", today),
+        (f"{config.SITE_URL}/disclaimer", "0.3", today),
+        (f"{config.SITE_URL}/editorial-standards", "0.3", today),
+        (f"{config.SITE_URL}/privacy", "0.3", today),
+        (f"{config.SITE_URL}/terms", "0.3", today),
     ]
 
     if breeds:
-        entries.append((f"{config.SITE_URL}/dog-grooming-guide.html", "0.8", today))
+        entries.append((f"{config.SITE_URL}/dog-grooming-guide", "0.8", today))
 
     grouped = group_by_state(groomers)
     for state in config.US_STATES:
@@ -698,7 +698,7 @@ def build_sitemap(groomers, posts, breeds=None):
                 (g.get("last_modified", g.get("date_added", today)) or today for g in state_groomers),
                 default=today,
             )
-            entries.append((f"{config.SITE_URL}/state/{state['slug']}.html", "0.8", state_lastmod))
+            entries.append((f"{config.SITE_URL}/state/{state['slug']}", "0.8", state_lastmod))
 
     # City pages
     city_groups = group_by_city(groomers)
@@ -708,22 +708,22 @@ def build_sitemap(groomers, posts, breeds=None):
                 (g.get("last_modified", g.get("date_added", today)) or today for g in city_groomers),
                 default=today,
             )
-            entries.append((f"{config.SITE_URL}/state/{state_slug}/{city_slug}.html", "0.7", city_lastmod))
+            entries.append((f"{config.SITE_URL}/state/{state_slug}/{city_slug}", "0.7", city_lastmod))
 
     for category in config.CATEGORIES:
-        entries.append((f"{config.SITE_URL}/category/{category['slug']}.html", "0.7", today))
+        entries.append((f"{config.SITE_URL}/category/{category['slug']}", "0.7", today))
 
     for groomer in groomers:
         if not is_thin_listing(groomer):
             lastmod = groomer.get("last_modified", groomer.get("date_added", today)) or today
-            entries.append((f"{config.SITE_URL}/groomer/{groomer['slug']}.html", "0.6", lastmod))
+            entries.append((f"{config.SITE_URL}/groomer/{groomer['slug']}", "0.6", lastmod))
 
     for post in posts:
         if post.get("slug"):
             post_lastmod = post.get("modified_date", post.get("publish_date", today)) or today
             if post_lastmod > today:
                 post_lastmod = today
-            entries.append((f"{config.SITE_URL}/blog/{post['slug']}.html", "0.8", post_lastmod))
+            entries.append((f"{config.SITE_URL}/blog/{post['slug']}", "0.8", post_lastmod))
 
     sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n'
     sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -814,10 +814,19 @@ def build_static_pages(env, groomers=None):
     total_count = len(groomers) if groomers else 0
     for page in STATIC_PAGES:
         template = env.get_template(page["template"])
+        # Canonical path is extensionless (e.g. /about instead of /about.html).
+        # success/index.html → /success/ for the canonical.
+        output = page["output"]
+        if output.endswith("/index.html"):
+            canonical_path = "/" + output[: -len("index.html")]
+        elif output.endswith(".html"):
+            canonical_path = "/" + output[: -len(".html")]
+        else:
+            canonical_path = "/" + output
         html = template.render(
             page_title=f"{page['title']} - {config.SITE_NAME}",
             meta_description=page["description"],
-            request_path=f"/{page['output']}",
+            request_path=canonical_path,
             total_count=total_count,
         )
         output_path = config.OUTPUT_DIR / page["output"]
@@ -953,7 +962,7 @@ def build_breed_guide(env, breeds):
         shedding_levels=shedding_levels,
         page_title=f"Dog Breed Grooming Guide - {config.SITE_NAME}",
         meta_description=f"Complete grooming guide for {len(breeds)} dog breeds organized by coat type. Learn grooming routines, shedding levels, bathing frequency, and special care needs for every coat type.",
-        request_path="/dog-grooming-guide.html",
+        request_path="/dog-grooming-guide",
     )
 
     output_path = config.OUTPUT_DIR / "dog-grooming-guide.html"
