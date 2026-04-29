@@ -27,9 +27,30 @@ AIRTABLE_BASE_ID = os.getenv("AIRTABLE_BASE_ID")
 AIRTABLE_TABLE_NAME = os.getenv("AIRTABLE_TABLE_NAME", "Groomers")
 AIRTABLE_BLOG_TABLE_NAME = os.getenv("AIRTABLE_BLOG_TABLE_NAME", "Blog Posts")
 
-# Noindex Thresholds
-MIN_LISTINGS_FOR_INDEX = 3  # State/city pages with fewer listings get noindex
-MIN_DESCRIPTION_LENGTH = 100  # Listing description minimum chars for indexing
+# Noindex Thresholds — content-quality gating
+MIN_STATE_LISTINGS_FOR_INDEX = 3   # State pages with fewer listings get noindex
+MIN_CITY_LISTINGS_FOR_INDEX = 10   # City pages with fewer listings get noindex
+                                   # Higher than state because city pages duplicate listings
+                                   # already on the state page; they need volume to justify
+                                   # a separate indexed URL.
+MIN_DESCRIPTION_LENGTH = 250       # Listing description minimum chars for indexing
+
+# Description quality filters — listing is noindexed if its description matches
+# any junk pattern, lacks any grooming-related vocabulary, or is too short.
+# This catches scraped/corrupted descriptions (e.g. tattoo studio metadata leaking
+# into a groomer record) that pass simple "is data present" checks.
+JUNK_DESCRIPTION_TERMS = [
+    "tattoo", "piercing", "reeperbahn", "talstrasse",
+    "@bibo_", "@drmrgowda", "ffnungszeiten",  # observed scraped patterns
+    " br br ", " br ", "<br",  # leaked HTML markup as plain text
+    "jetzt anrufen", "klicken sie", "horario:",  # non-English markers from scrapes
+]
+GROOMING_VOCAB = [
+    "groom", "dog", "pet", "puppy", "salon", "spa",
+    "bath", "cut", "trim", "nail", "coat", "fur", "wash",
+    "shampoo", "brush", "clip", "shed", "shedding",
+    "boutique", "kennel", "hound", "canine", "animal", "k9", "k-9",
+]
 
 # Authors — E-E-A-T: each blog post must have a credited author with credentials
 AUTHORS = {

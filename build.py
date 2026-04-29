@@ -399,39 +399,73 @@ def generate_dynamic_meta_description(page_type, context):
     return ""
 
 
-def is_thin_listing(groomer):
-    """Check if a groomer page has too little content to be indexed.
+def load_gsc_protected_slugs():
+    """Load groomer slugs that are currently earning Google traffic.
 
-    Must-have #4: noindex threshold for sparse/low-content pages.
+    These are grandfathered through description_quality_check so the new
+    strict gate cannot regress any URL that's already ranking. Refresh by
+    running scripts/extract_gsc_protected.py against a fresh GSC export.
     """
-    desc = str(groomer.get("description", "")).strip()
-    desc_ok = len(desc) >= config.MIN_DESCRIPTION_LENGTH and desc.lower() != "nan"
-    hours_ok = bool(str(groomer.get("hours", "")).strip()) and str(groomer.get("hours", "")).strip().lower() != "nan"
-    services = groomer.get("services", [])
+    path = config.BASE_DIR / "data" / "gsc_protected_urls.txt"
+    if not path.exists():
+        return set()
+    return {
+        line.strip()
+        for line in path.read_text().splitlines()
+        if line.strip() and not line.startswith("#")
+    }
+
+
+_GSC_PROTECTED = load_gsc_protected_slugs()
+
+
+def description_quality_check(groomer):
+    """Decide whether a groomer listing has enough genuine content to be indexed.
+
+    Returns (passes, reason). Description is the primary gate — its length and
+    content quality matter more than whether other data fields are populated.
+    Hours/phone/services are demoted to secondary signals that can rescue a
+    borderline listing.
+
+    GSC-protected slugs (currently earning Google traffic) are grandfathered:
+    they pass regardless of the new gate, so the rewrite cannot regress
+    pages that are already ranking. After the 60-day window the protection
+    list should be re-extracted from a fresh GSC report.
+    """
+    slug = (groomer.get("slug") or "").lower()
+    if slug in _GSC_PROTECTED:
+        return True, "gsc-protected"
+
+    desc = str(groomer.get("description") or "").strip()
+    desc_lower = desc.lower()
+
+    if not desc or desc_lower == "nan":
+        return False, "no description"
+    if len(desc) < config.MIN_DESCRIPTION_LENGTH:
+        return False, f"description too short ({len(desc)} < {config.MIN_DESCRIPTION_LENGTH})"
+    for term in config.JUNK_DESCRIPTION_TERMS:
+        if term in desc_lower:
+            return False, f"junk pattern: {term!r}"
+    if not any(v in desc_lower for v in config.GROOMING_VOCAB):
+        return False, "no grooming vocabulary"
+
+    # Description passed the primary gate. Require at least one additional
+    # signal so we don't index a listing with rich text but no contact info.
+    hours_ok = bool(str(groomer.get("hours") or "").strip()) and \
+               str(groomer.get("hours") or "").strip().lower() != "nan"
+    services = groomer.get("services") or []
     services_ok = isinstance(services, list) and len(services) > 0
-    phone_ok = bool(str(groomer.get("phone", "")).strip())
+    phone_ok = bool(str(groomer.get("phone") or "").strip())
+    if not (hours_ok or services_ok or phone_ok):
+        return False, "no contact/service signals"
 
-    content_signals = sum([desc_ok, hours_ok, services_ok, phone_ok])
-    return content_signals <= 1
+    return True, "ok"
 
 
-def generate_city_intro(city, state, groomers):
-    """Generate an editorial intro for city pages using listing data."""
-    count = len(groomers)
-    service_types = set()
-    for g in groomers:
-        if g.get("type"):
-            service_types.add(g["type"])
-
-    types_str = ", ".join(sorted(service_types)[:3]) if service_types else "professional grooming"
-
-    return (
-        f"{city}, {state} has {count} professional dog grooming "
-        f"{'business' if count == 1 else 'businesses'} listed in our directory, "
-        f"offering {types_str} services. Whether your dog needs a routine bath and trim, "
-        f"breed-specific styling, or specialized care for sensitive skin, {city}'s grooming "
-        f"professionals are ready to help keep your pet looking and feeling their best."
-    )
+def is_thin_listing(groomer):
+    """Backward-compatible wrapper around description_quality_check."""
+    passes, _ = description_quality_check(groomer)
+    return not passes
 
 
 def build_homepage(env, groomers, posts):
@@ -478,7 +512,7 @@ def build_state_pages(env, groomers):
         state_groomers = grouped.get(state["slug"], [])
         state_groomers.sort(key=lambda x: x.get("city", ""))
 
-        thin_state = len(state_groomers) < config.MIN_LISTINGS_FOR_INDEX
+        thin_state = len(state_groomers) < config.MIN_STATE_LISTINGS_FOR_INDEX
 
         meta_desc = generate_dynamic_meta_description("state", {
             "state_description": state["description"],
@@ -499,12 +533,21 @@ def build_state_pages(env, groomers):
 
 
 def build_city_pages(env, groomers):
-    """Build city-level pages for cities with 2+ listings."""
+    """Build city-level pages.
+
+    Pages are still emitted for cities with >= 2 listings so internal links
+    from groomer detail pages resolve. Cities below MIN_CITY_LISTINGS_FOR_INDEX
+    are noindexed and excluded from the sitemap — this is the audit-D fix:
+    the prior implementation injected a templated 30-word intro on every city
+    page, producing 749 indexed near-duplicates that AdSense classifies as
+    doorway pages. The intro is now removed entirely; per-city editorial can
+    be added later via an Airtable field if real local content is written.
+    """
     template = env.get_template("city.html")
     city_groups = group_by_city(groomers)
 
-    # Create city directory under state directories
     city_count = 0
+    indexed_count = 0
     for (state_slug, city, city_slug), city_groomers in sorted(city_groups.items()):
         if len(city_groomers) < 2:
             continue
@@ -513,12 +556,17 @@ def build_city_pages(env, groomers):
         state_dir.mkdir(parents=True, exist_ok=True)
 
         state_name = city_groomers[0].get("state", "")
-        city_intro = generate_city_intro(city, state_name, city_groomers)
-        thin_city = len(city_groomers) < config.MIN_LISTINGS_FOR_INDEX
+        thin_city = len(city_groomers) < config.MIN_CITY_LISTINGS_FOR_INDEX
+        if not thin_city:
+            indexed_count += 1
 
-        meta_desc = generate_dynamic_meta_description("city", {"city_intro": city_intro})
+        # Factual meta description from listing count — no marketing boilerplate.
+        listing_word = "groomer" if len(city_groomers) == 1 else "groomers"
+        meta_desc = (
+            f"{len(city_groomers)} dog {listing_word} in {city}, {state_name}. "
+            f"View hours, services, and contact info."
+        )
 
-        # Find state info for breadcrumb
         state_info = next((s for s in config.US_STATES if s["slug"] == state_slug), None)
 
         html = template.render(
@@ -526,7 +574,7 @@ def build_city_pages(env, groomers):
             city_slug=city_slug,
             state=state_info or {"name": state_name, "slug": state_slug},
             groomers=city_groomers,
-            city_intro=city_intro,
+            city_intro="",  # audit-D: no templated intro
             page_title=f"Dog Groomers in {city}, {state_name} - {config.SITE_NAME}",
             meta_description=meta_desc,
             request_path=f"/state/{state_slug}/{city_slug}",
@@ -537,7 +585,7 @@ def build_city_pages(env, groomers):
         output_path.write_text(html)
         city_count += 1
 
-    print(f"Built: {city_count} city pages")
+    print(f"Built: {city_count} city pages ({indexed_count} indexed, {city_count - indexed_count} noindexed)")
 
 
 def build_groomer_pages(env, groomers):
@@ -692,7 +740,7 @@ def build_sitemap(groomers, posts, breeds=None):
     grouped = group_by_state(groomers)
     for state in config.US_STATES:
         state_groomers = grouped.get(state["slug"], [])
-        if len(state_groomers) >= config.MIN_LISTINGS_FOR_INDEX:
+        if len(state_groomers) >= config.MIN_STATE_LISTINGS_FOR_INDEX:
             # Use most recent listing modification date for state page lastmod
             state_lastmod = max(
                 (g.get("last_modified", g.get("date_added", today)) or today for g in state_groomers),
@@ -700,10 +748,12 @@ def build_sitemap(groomers, posts, breeds=None):
             )
             entries.append((f"{config.SITE_URL}/state/{state['slug']}", "0.8", state_lastmod))
 
-    # City pages
+    # City pages — only include if above the noindex threshold. The page itself
+    # is still served (so internal links work), but Google should not be told
+    # about a noindexed URL via sitemap.
     city_groups = group_by_city(groomers)
     for (state_slug, city, city_slug), city_groomers in sorted(city_groups.items()):
-        if len(city_groomers) >= 2:
+        if len(city_groomers) >= config.MIN_CITY_LISTINGS_FOR_INDEX:
             city_lastmod = max(
                 (g.get("last_modified", g.get("date_added", today)) or today for g in city_groomers),
                 default=today,
