@@ -49,15 +49,19 @@
   to = "/editorial-standards.html"
   status = 200
 
+# Newsletter feature retired 2026-05-24 (Mailchimp cancelled).
+# Redirect old indexed newsletter URLs to home so Google drops them cleanly.
 [[redirects]]
-  from = "/newsletter/archive"
-  to = "/newsletter/archive.html"
-  status = 200
+  from = "/newsletter/*"
+  to = "/"
+  status = 301
+  force = true
 
 [[redirects]]
-  from = "/newsletter/sample"
-  to = "/newsletter/sample.html"
-  status = 200
+  from = "/newsletter"
+  to = "/"
+  status = 301
+  force = true
 
 [[redirects]]
   from = "/success"

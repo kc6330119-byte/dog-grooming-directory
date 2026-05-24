@@ -818,7 +818,7 @@ def build_netlify_redirects(groomers, posts, breeds=None):
 
     static_pages = [
         "about", "contact", "privacy", "terms", "disclaimer",
-        "editorial-standards", "submit", "blog", "newsletter",
+        "editorial-standards", "submit", "blog",
     ]
     if breeds:
         static_pages.append("dog-grooming-guide")
@@ -946,70 +946,6 @@ def build_static_pages(env, groomers=None):
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html)
         print(f"Built: {page['output']}")
-
-
-def build_newsletter_pages(env):
-    """Build newsletter landing page, archive page, and sample issue."""
-    output_dir = config.OUTPUT_DIR / "newsletter"
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Newsletter landing page (/newsletter/index.html)
-    template = env.get_template("newsletter.html")
-    html = template.render(
-        page_title=f"Newsletter - {config.SITE_NAME}",
-        meta_description="Subscribe to the Dog Groomer Locator newsletter for monthly grooming tips, new listings, and seasonal coat care guides.",
-        request_path="/newsletter",
-    )
-    (output_dir / "index.html").write_text(html)
-    print("Built: newsletter/index.html")
-
-    # Newsletter archive page (/newsletter/archive.html)
-    template = env.get_template("newsletter-archive.html")
-    html = template.render(
-        page_title=f"Newsletter Archive - {config.SITE_NAME}",
-        meta_description="Browse past issues of the Dog Groomer Locator newsletter.",
-        request_path="/newsletter/archive",
-    )
-    (output_dir / "archive.html").write_text(html)
-    print("Built: newsletter/archive.html")
-
-    # Newsletter sample issue (/newsletter/sample.html)
-    draft_path = Path("newsletter/issue-01-draft.md")
-    if not draft_path.exists():
-        print("Skipped: newsletter/sample (draft not found)")
-    else:
-        raw_md = draft_path.read_text(encoding="utf-8")
-        # Strip the HTML comment metadata block at the top
-        if raw_md.startswith("<!--"):
-            end = raw_md.find("-->")
-            if end != -1:
-                raw_md = raw_md[end + 3:].lstrip("\n")
-
-        newsletter_html = Markup(md_lib.markdown(raw_md, extensions=["extra", "nl2br"]))
-
-        template = env.get_template("newsletter-sample.html")
-        html = template.render(
-            page_title=f"Newsletter Issue #1 Preview - {config.SITE_NAME}",
-            meta_description="Preview of the Dog Groomer Locator newsletter — grooming tips, new listings, and seasonal guides.",
-            request_path="/newsletter/sample",
-            noindex=True,
-            newsletter_html=newsletter_html,
-        )
-        (output_dir / "sample.html").write_text(html)
-        print("Built: newsletter/sample.html")
-
-    # Copy newsletter assets (logo, images) to output
-    logo_path = Path("newsletter/NewsletterLogo.png")
-    if logo_path.exists():
-        shutil.copy(logo_path, output_dir / "NewsletterLogo.png")
-
-    images_dir = Path("newsletter/images")
-    if images_dir.is_dir():
-        dest_images = output_dir / "images"
-        dest_images.mkdir(parents=True, exist_ok=True)
-        for img in images_dir.iterdir():
-            if img.is_file():
-                shutil.copy(img, dest_images / img.name)
 
 
 def load_breed_guide():
@@ -1219,7 +1155,6 @@ def main():
     build_static_pages(env, groomers)
     build_blog_page(env, posts)
     build_post_pages(env, posts)
-    build_newsletter_pages(env)
     build_breed_guide(env, breeds)
 
     print("\nBuilding SEO files...")
