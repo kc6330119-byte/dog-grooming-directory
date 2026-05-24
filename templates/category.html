@@ -40,7 +40,7 @@
                 <h1 class="text-3xl md:text-4xl font-bold mb-1">{{ category.name }} Dog Groomers</h1>
                 <p class="text-violet-100 text-lg">
                     {{ category.description }}
-                    {% if groomers %}— {{ groomers | length }} location{% if groomers | length != 1 %}s{% endif %}{% endif %}
+                    {% if total_count %}— {{ total_count }} quality-checked location{% if total_count != 1 %}s{% endif %}{% endif %}
                 </p>
             </div>
         </div>
@@ -60,19 +60,15 @@
 
     {% if groomers %}
 
-    <!-- Mobile: horizontal scrollable state pills -->
+    <!-- Mobile: horizontal scrollable state links -->
     <div class="lg:hidden mb-5 -mx-4 px-4">
-        <p class="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide">Filter by State</p>
+        <p class="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide">Browse by State</p>
         <div class="flex gap-2 overflow-x-auto pb-2" style="scrollbar-width:none;-ms-overflow-style:none;">
-            <button data-state-filter="all"
-                    class="state-btn flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium bg-violet-600 text-white transition-colors whitespace-nowrap">
-                All ({{ groomers | length }})
-            </button>
-            {% for state_name, count in state_list %}
-            <button data-state-filter="{{ state_name }}"
-                    class="state-btn flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-violet-50 hover:text-violet-700 transition-colors whitespace-nowrap">
-                {{ state_name }} ({{ count }})
-            </button>
+            {% for item in state_list %}
+            <a href="/state/{{ item.slug }}"
+               class="flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-violet-50 hover:text-violet-700 transition-colors whitespace-nowrap">
+                {{ item.name }} ({{ item.count }})
+            </a>
             {% endfor %}
         </div>
     </div>
@@ -84,20 +80,15 @@
         <aside class="hidden lg:block w-52 flex-shrink-0">
             <div class="bg-white border border-gray-100 rounded-xl shadow-sm sticky top-20 overflow-hidden">
                 <div class="px-4 py-3 border-b border-gray-100">
-                    <h2 class="font-semibold text-gray-800 text-sm">Filter by State</h2>
+                    <h2 class="font-semibold text-gray-800 text-sm">Browse by State</h2>
                 </div>
                 <div class="overflow-y-auto" style="max-height:72vh;">
-                    <button data-state-filter="all"
-                            class="state-btn w-full text-left px-4 py-2.5 text-sm flex justify-between items-center bg-violet-50 text-violet-700 font-medium">
-                        <span>All States</span>
-                        <span class="text-xs bg-violet-100 text-violet-700 rounded-full px-1.5 py-0.5 font-normal">{{ groomers | length }}</span>
-                    </button>
-                    {% for state_name, count in state_list %}
-                    <button data-state-filter="{{ state_name }}"
-                            class="state-btn w-full text-left px-4 py-2.5 text-sm flex justify-between items-center border-t border-gray-50 text-gray-700 hover:bg-gray-50 transition-colors">
-                        <span class="truncate mr-2">{{ state_name }}</span>
-                        <span class="text-xs text-gray-400 flex-shrink-0">{{ count }}</span>
-                    </button>
+                    {% for item in state_list %}
+                    <a href="/state/{{ item.slug }}"
+                       class="w-full text-left px-4 py-2.5 text-sm flex justify-between items-center border-t border-gray-50 text-gray-700 hover:bg-gray-50 transition-colors">
+                        <span class="truncate mr-2">{{ item.name }}</span>
+                        <span class="text-xs text-gray-400 flex-shrink-0">{{ item.count }}</span>
+                    </a>
                     {% endfor %}
                 </div>
             </div>
@@ -106,7 +97,8 @@
         <!-- Main content -->
         <div class="flex-1 min-w-0">
             <p class="text-sm text-gray-500 mb-5" id="results-count">
-                Showing {{ groomers | length }} dog groomer{% if groomers | length != 1 %}s{% endif %}
+                Showing {{ groomers | length }} featured quality-checked dog groomer{% if groomers | length != 1 %}s{% endif %}
+                {% if showing_limited %}from {{ total_count }} matching listings{% endif %}
             </p>
 
             <div id="groomers-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -115,9 +107,6 @@
                 {% endfor %}
             </div>
 
-            <p id="no-results" class="hidden text-center py-20 text-gray-400 text-lg">
-                No results found for that state.
-            </p>
         </div>
 
     </div>
@@ -156,60 +145,5 @@
         </div>
     </div>
 </section>
-
-<script>
-(function () {
-    var cards = Array.from(document.querySelectorAll('#groomers-grid .listing-card'));
-    var btns  = Array.from(document.querySelectorAll('.state-btn'));
-    var countEl    = document.getElementById('results-count');
-    var grid       = document.getElementById('groomers-grid');
-    var noResults  = document.getElementById('no-results');
-    var totalCount = cards.length;
-
-    function filterByState(state) {
-        var visible = 0;
-
-        cards.forEach(function (card) {
-            var show = (state === 'all' || card.dataset.state === state);
-            card.style.display = show ? '' : 'none';
-            if (show) visible++;
-        });
-
-        // Update count label
-        var label = 'Showing ' + visible + ' dog groomer' + (visible !== 1 ? 's' : '');
-        if (state !== 'all') label += ' in ' + state;
-        countEl.textContent = label;
-
-        // Show/hide no-results message
-        noResults.classList.toggle('hidden', visible > 0);
-        grid.classList.toggle('hidden', visible === 0);
-
-        // Update active styles
-        btns.forEach(function (btn) {
-            var active = btn.dataset.stateFilter === state;
-            var inSidebar = !!btn.closest('aside');
-
-            if (inSidebar) {
-                btn.classList.toggle('bg-violet-50',   active);
-                btn.classList.toggle('text-violet-700', active);
-                btn.classList.toggle('font-medium',   active);
-                btn.classList.toggle('hover\\:bg-gray-50', !active);
-            } else {
-                // Mobile pills
-                btn.classList.toggle('bg-violet-600', active);
-                btn.classList.toggle('text-white',  active);
-                btn.classList.toggle('bg-gray-100', !active);
-                btn.classList.toggle('text-gray-700', !active);
-            }
-        });
-    }
-
-    btns.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            filterByState(this.dataset.stateFilter);
-        });
-    });
-})();
-</script>
 
 {% endblock %}

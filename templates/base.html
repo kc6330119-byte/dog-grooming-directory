@@ -22,14 +22,14 @@
     <meta property="og:url" content="{{ site_url }}{{ request_path | default('/') }}">
     <meta property="og:title" content="{{ page_title }}">
     <meta property="og:description" content="{{ meta_description }}">
-    <meta property="og:image" content="{{ site_url }}/static/images/og-image.png">
+    <meta property="og:image" content="{{ site_url }}{{ default_og_image }}">
     <meta property="og:site_name" content="{{ site_name }}">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ page_title }}">
     <meta name="twitter:description" content="{{ meta_description }}">
-    <meta name="twitter:image" content="{{ site_url }}/static/images/og-image.png">
+    <meta name="twitter:image" content="{{ site_url }}{{ default_og_image }}">
 
     <!-- SEO -->
     <meta name="author" content="{{ site_name }}">
@@ -41,15 +41,7 @@
         "@type": "WebSite",
         "name": {{ site_name | tojson | safe }},
         "url": {{ site_url | tojson | safe }},
-        "description": {{ site_description | tojson | safe }},
-        "potentialAction": {
-            "@type": "SearchAction",
-            "target": {
-                "@type": "EntryPoint",
-                "urlTemplate": {{ (site_url ~ "/state/{slug}") | tojson | safe }}
-            },
-            "query-input": "required name=slug"
-        }
+        "description": {{ site_description | tojson | safe }}
     }
     </script>
 
@@ -66,9 +58,12 @@
     </script>
     {% endif %}
 
+    {% set show_ads = adsense_enabled and not noindex and not suppress_ads %}
+    {% if show_ads %}
     <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9265762311868507"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ adsense_client_id }}"
      crossorigin="anonymous"></script>
+    {% endif %}
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -189,24 +184,10 @@
         </div>
     </nav>
 
-    <!-- Ad Slot: Header Banner -->
-    <div class="ad-container my-4 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-        <div class="bg-gray-100 border border-dashed border-gray-300 p-4 rounded text-center">
-            <p class="text-gray-400 text-xs">Advertisement</p>
-        </div>
-    </div>
-
     <!-- Main Content -->
     <main class="flex-grow">
         {% block content %}{% endblock %}
     </main>
-
-    <!-- Ad Slot: Footer Banner -->
-    <div class="ad-container my-8 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-        <div class="bg-gray-100 border border-dashed border-gray-300 p-4 rounded text-center">
-            <p class="text-gray-400 text-xs">Advertisement</p>
-        </div>
-    </div>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white">

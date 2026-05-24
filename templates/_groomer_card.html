@@ -54,7 +54,9 @@
             <span class="text-yellow-400 text-sm">★</span>
             <span class="text-xs text-gray-600 font-medium">{{ groomer.rating }}</span>
             {% if groomer.review_count %}
-            <span class="text-xs text-gray-400">({{ groomer.review_count }} reviews)</span>
+            <span class="text-xs text-gray-400">Google rating ({{ groomer.review_count }} reviews)</span>
+            {% else %}
+            <span class="text-xs text-gray-400">Google rating</span>
             {% endif %}
         </div>
         {% endif %}

@@ -20,12 +20,17 @@ SITE_NAME = "Dog Groomer Locator"
 SITE_DESCRIPTION = "Find trusted dog groomers near you. Browse ratings, services, prices, and reviews for professional pet grooming across America."
 SITE_URL = os.getenv("SITE_URL", "https://doggroomerlocator.com")
 SITE_AUTHOR = "Dog Groomer Locator"
+DEFAULT_OG_IMAGE = "/static/images/og-image.png"
 
 # Airtable Configuration
 AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY")
 AIRTABLE_BASE_ID = os.getenv("AIRTABLE_BASE_ID")
 AIRTABLE_TABLE_NAME = os.getenv("AIRTABLE_TABLE_NAME", "Groomers")
 AIRTABLE_BLOG_TABLE_NAME = os.getenv("AIRTABLE_BLOG_TABLE_NAME", "Blog Posts")
+
+# Monetization
+ADSENSE_CLIENT_ID = os.getenv("ADSENSE_CLIENT_ID", "ca-pub-9265762311868507")
+ADSENSE_ENABLED = os.getenv("ADSENSE_ENABLED", "false").lower() in {"1", "true", "yes", "on"}
 
 # Noindex Thresholds — content-quality gating
 MIN_STATE_LISTINGS_FOR_INDEX = 3   # State pages with fewer listings get noindex
@@ -34,6 +39,9 @@ MIN_CITY_LISTINGS_FOR_INDEX = 10   # City pages with fewer listings get noindex
                                    # already on the state page; they need volume to justify
                                    # a separate indexed URL.
 MIN_DESCRIPTION_LENGTH = 250       # Listing description minimum chars for indexing
+CATEGORY_PREVIEW_LIMIT = 120       # Prevent category pages from becoming huge listing dumps
+REPETITIVE_DESCRIPTION_START_WORDS = 8
+REPETITIVE_DESCRIPTION_MAX_REPEATS = 3
 
 # Description quality filters — listing is noindexed if its description matches
 # any junk pattern, lacks any grooming-related vocabulary, or is too short.
@@ -205,8 +213,8 @@ CATEGORIES = [
 GA_MEASUREMENT_ID = os.getenv("GA_MEASUREMENT_ID", "G-GLHVWDC9HQ")
 
 # SEO Settings
-DEFAULT_META_TITLE = f"{SITE_NAME} - Find Dog Groomers Near You"
-DEFAULT_META_DESCRIPTION = SITE_DESCRIPTION
+DEFAULT_META_TITLE = "Dog Groomers Near Me | Local Dog Grooming Directory"
+DEFAULT_META_DESCRIPTION = "Find dog groomers near you by state, city, service type, ratings, hours, prices, and reviews. Browse mobile, full-service, and affordable grooming."
 
 # Build Settings
 ITEMS_PER_PAGE = 24

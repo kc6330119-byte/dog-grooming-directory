@@ -64,6 +64,12 @@
   force = true
 
 [[redirects]]
+  from = "/category/mobile"
+  to = "/category/mobile-grooming"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/success"
   to = "/success/index.html"
   status = 200

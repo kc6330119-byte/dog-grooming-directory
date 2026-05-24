@@ -7,6 +7,7 @@ Falls back to sample data if Airtable is not configured.
 """
 import json
 import os
+import re
 import shutil
 from collections import defaultdict
 from datetime import datetime
@@ -199,7 +200,37 @@ def get_groomers():
     if groomers is None:
         groomers = get_sample_data()
         print(f"Using {len(groomers)} sample groomers.")
+    dedupe_slugs(groomers)
     return groomers
+
+
+def dedupe_slugs(groomers):
+    """Ensure every groomer has a stable, unique output slug."""
+    used = set()
+    for index, groomer in enumerate(groomers, start=1):
+        base = (groomer.get("slug") or "").strip()
+        if not base:
+            base = slugify(f"{groomer.get('name', '')}-{groomer.get('city', '')}") or f"groomer-{index}"
+
+        candidates = [base]
+        zip_code = slugify(str(groomer.get("zip") or "").strip())
+        if zip_code and not base.endswith(f"-{zip_code}"):
+            candidates.append(f"{base}-{zip_code}")
+
+        record_id = slugify(str(groomer.get("_airtable_id") or "").strip()[-6:])
+        if record_id:
+            candidates.append(f"{base}-{record_id}")
+
+        candidate = next((c for c in candidates if c and c not in used), "")
+        suffix = 2
+        while not candidate:
+            numbered = f"{base}-{suffix}"
+            if numbered not in used:
+                candidate = numbered
+            suffix += 1
+
+        groomer["slug"] = candidate
+        used.add(candidate)
 
 
 def fetch_blog_posts():
@@ -319,6 +350,9 @@ def create_jinja_env():
     env.globals["us_states"] = config.US_STATES
     env.globals["current_year"] = datetime.now().year
     env.globals["ga_measurement_id"] = config.GA_MEASUREMENT_ID
+    env.globals["adsense_enabled"] = config.ADSENSE_ENABLED
+    env.globals["adsense_client_id"] = config.ADSENSE_CLIENT_ID
+    env.globals["default_og_image"] = config.DEFAULT_OG_IMAGE
     env.globals["authors"] = config.AUTHORS
 
     return env
@@ -346,6 +380,81 @@ def group_by_city(groomers):
     return grouped
 
 
+def truncate_at_word(value, max_length):
+    """Trim text cleanly without splitting the final word."""
+    text = " ".join(str(value or "").split())
+    if len(text) <= max_length:
+        return text
+    trimmed = text[:max_length - 3].rsplit(" ", 1)[0].rstrip(" ,;:-|")
+    return f"{trimmed}..." if trimmed else f"{text[:max_length - 3]}..."
+
+
+def seo_title(primary, secondary="", max_length=62):
+    """Build a compact, keyword-first page title."""
+    primary = " ".join(str(primary or "").split())
+    secondary = " ".join(str(secondary or "").split())
+    if secondary:
+        candidate = f"{primary} | {secondary}"
+        if len(candidate) <= max_length:
+            return candidate
+    if len(primary) <= max_length:
+        return primary
+    return truncate_at_word(primary, max_length)
+
+
+CATEGORY_SEO_TITLES = {
+    "full-service": "Full-Service Dog Groomers Near Me",
+    "mobile-grooming": "Mobile Dog Groomers Near Me",
+    "breed-specific": "Breed-Specific Dog Groomers Near Me",
+    "cat-grooming": "Cat Grooming Services Near Me",
+    "puppy-first-groom": "Puppy Groomers Near Me",
+    "senior-special-needs": "Senior Dog & Special Needs Groomers Near Me",
+    "self-service-wash": "Self-Service Dog Wash Near Me",
+    "affordable": "Affordable Dog Groomers Near Me",
+}
+
+
+CATEGORY_FILTERS = {
+    "full-service": lambda g: g.get("type") in ["Full-Service Salon", "Full-Service Grooming"],
+    "mobile-grooming": lambda g: g.get("type") == "Mobile Grooming" or "Mobile Grooming" in g.get("specialties", []),
+    "breed-specific": lambda g: "Breed-Specific Styling" in g.get("specialties", []) or "Show Grooming" in g.get("specialties", []),
+    "cat-grooming": lambda g: "Cat Grooming" in g.get("services", []) or "Cat Grooming" in g.get("specialties", []),
+    "puppy-first-groom": lambda g: "Puppy First Groom" in g.get("services", []) or "Puppy First Groom" in g.get("specialties", []),
+    "senior-special-needs": lambda g: "Senior Dogs" in g.get("specialties", []) or "Special Needs" in g.get("specialties", []),
+    "self-service-wash": lambda g: "Self-Service Wash" in g.get("services", []) or g.get("type") == "Self-Service Dog Wash",
+    "affordable": lambda g: g.get("price_range") in ["$", "$$"],
+}
+
+
+def category_groomers_for(groomers, category):
+    """Return quality-passing listings that match a public category."""
+    filter_fn = CATEGORY_FILTERS.get(category.get("slug", ""), lambda g: True)
+    return [g for g in groomers if filter_fn(g)]
+
+
+def category_seo_title(category):
+    """Return a natural category title for local-intent searches."""
+    return CATEGORY_SEO_TITLES.get(
+        category.get("slug", ""),
+        f"{category.get('name', 'Dog Groomers')} Near Me",
+    )
+
+
+def groomer_page_title(groomer):
+    """Use business name plus local service context for detail-page titles."""
+    name = groomer.get("name", "Dog Groomer")
+    city = groomer.get("city", "")
+    state = groomer.get("state", "")
+    location = ", ".join(part for part in [city, state] if part)
+    has_grooming_context = re.search(
+        r"\b(groom|grooming|groomer|salon|spa|pet|pooch|puppy|dog|hound|canine|k9|k-9)\b",
+        str(name).lower(),
+    )
+    service_label = "" if has_grooming_context else " Dog Groomer"
+    primary = f"{name}{service_label} in {location}" if location else f"{name}{service_label}"
+    return seo_title(primary, "Reviews & Info", max_length=70)
+
+
 def generate_dynamic_meta_description(page_type, context):
     """Generate unique meta description from actual page content — never formulaic.
 
@@ -359,32 +468,55 @@ def generate_dynamic_meta_description(page_type, context):
 
         if desc and len(desc) >= 50:
             # Prepend business name to ensure uniqueness even if descriptions overlap
-            prefix = f"{name} in {city}, {state}" if name and city else name
+            prefix = f"{name} is a dog groomer in {city}, {state}" if name and city else name
             candidate = f"{prefix} — {desc}" if prefix else desc
-            return candidate[:155].rsplit(" ", 1)[0] + "..." if len(candidate) > 155 else candidate
+            return truncate_at_word(candidate, 155)
 
         # Fallback: structured meta from business data
         if name and city and state:
-            return f"{name} — dog grooming services in {city}, {state}. Browse hours, reviews, and contact info."
+            return truncate_at_word(
+                f"{name} is a dog groomer in {city}, {state}. View services, hours, reviews, and contact info.",
+                155,
+            )
         return ""
 
     elif page_type == "state":
+        state = str(context.get("state", "")).strip()
+        count = context.get("count")
+        if state:
+            count_text = f"{count} " if count else ""
+            return truncate_at_word(
+                f"Find {count_text}dog groomers in {state}. Browse local salons, mobile groomers, hours, services, reviews, and state-specific grooming tips.",
+                155,
+            )
         state_desc = str(context.get("state_description", "")).strip()
         if state_desc:
-            return state_desc[:155].rsplit(" ", 1)[0] + "..." if len(state_desc) > 155 else state_desc
+            return truncate_at_word(state_desc, 155)
         return ""
 
     elif page_type == "city":
-        # Use editorial intro if available
-        intro = str(context.get("city_intro", "")).strip()
-        if intro and len(intro) >= 50:
-            return intro[:155].rsplit(" ", 1)[0] + "..." if len(intro) > 155 else intro
+        city = str(context.get("city", "")).strip()
+        state = str(context.get("state", "")).strip()
+        count = context.get("count")
+        if city and state:
+            count_text = f"{count} " if count else ""
+            return truncate_at_word(
+                f"Find {count_text}dog groomers near you in {city}, {state}. Compare local grooming services, hours, reviews, and contact info.",
+                155,
+            )
         return ""
 
     elif page_type == "category":
+        category_name = str(context.get("category_name", "")).strip()
+        if category_name:
+            category_label = re.sub(r"\s+near me$", "", category_name, flags=re.IGNORECASE)
+            return truncate_at_word(
+                f"Find {category_label.lower()} near you. Browse quality-checked dog groomers by state with services, hours, reviews, and contact details.",
+                155,
+            )
         intro = str(context.get("intro", "")).strip()
         if intro:
-            return intro[:155].rsplit(" ", 1)[0] + "..." if len(intro) > 155 else intro
+            return truncate_at_word(intro, 155)
         return ""
 
     elif page_type == "post":
@@ -393,7 +525,7 @@ def generate_dynamic_meta_description(page_type, context):
             return meta[:155]
         excerpt = str(context.get("excerpt", "")).strip()
         if excerpt:
-            return excerpt[:155].rsplit(" ", 1)[0] + "..." if len(excerpt) > 155 else excerpt
+            return truncate_at_word(excerpt, 155)
         return ""
 
     return ""
@@ -419,6 +551,14 @@ def load_gsc_protected_slugs():
 _GSC_PROTECTED = load_gsc_protected_slugs()
 
 
+def description_start_key(description):
+    """Normalize a description start so repeated boilerplate can be detected."""
+    words = re.findall(r"[a-z0-9]+", str(description or "").lower())
+    if len(words) < config.REPETITIVE_DESCRIPTION_START_WORDS:
+        return ""
+    return " ".join(words[:config.REPETITIVE_DESCRIPTION_START_WORDS])
+
+
 def description_quality_check(groomer):
     """Decide whether a groomer listing has enough genuine content to be indexed.
 
@@ -433,21 +573,20 @@ def description_quality_check(groomer):
     list should be re-extracted from a fresh GSC report.
     """
     slug = (groomer.get("slug") or "").lower()
-    if slug in _GSC_PROTECTED:
-        return True, "gsc-protected"
-
     desc = str(groomer.get("description") or "").strip()
     desc_lower = desc.lower()
 
     if not desc or desc_lower == "nan":
         return False, "no description"
-    if len(desc) < config.MIN_DESCRIPTION_LENGTH:
-        return False, f"description too short ({len(desc)} < {config.MIN_DESCRIPTION_LENGTH})"
     for term in config.JUNK_DESCRIPTION_TERMS:
         if term in desc_lower:
             return False, f"junk pattern: {term!r}"
     if not any(v in desc_lower for v in config.GROOMING_VOCAB):
         return False, "no grooming vocabulary"
+    if slug in _GSC_PROTECTED:
+        return True, "gsc-protected"
+    if len(desc) < config.MIN_DESCRIPTION_LENGTH:
+        return False, f"description too short ({len(desc)} < {config.MIN_DESCRIPTION_LENGTH})"
 
     # Description passed the primary gate. Require at least one additional
     # signal so we don't index a listing with rich text but no contact info.
@@ -462,10 +601,53 @@ def description_quality_check(groomer):
     return True, "ok"
 
 
+def annotate_listing_quality(groomers):
+    """Attach content-quality decisions to groomers for build reuse."""
+    starts = defaultdict(int)
+    for groomer in groomers:
+        key = description_start_key(groomer.get("description", ""))
+        if key:
+            starts[key] += 1
+
+    for groomer in groomers:
+        passes, reason = description_quality_check(groomer)
+        key = description_start_key(groomer.get("description", ""))
+        if (
+            passes
+            and key
+            and starts[key] > config.REPETITIVE_DESCRIPTION_MAX_REPEATS
+            and (groomer.get("slug") or "").lower() not in _GSC_PROTECTED
+        ):
+            passes = False
+            reason = f"repetitive description start ({starts[key]} matches)"
+
+        groomer["_quality_passes"] = passes
+        groomer["_quality_reason"] = reason
+
+
+def is_quality_listing(groomer):
+    """Return true when a listing is suitable for public discovery surfaces."""
+    if "_quality_passes" not in groomer:
+        passes, reason = description_quality_check(groomer)
+        groomer["_quality_passes"] = passes
+        groomer["_quality_reason"] = reason
+    return bool(groomer.get("_quality_passes"))
+
+
+def quality_reason(groomer):
+    if "_quality_reason" not in groomer:
+        is_quality_listing(groomer)
+    return groomer.get("_quality_reason", "")
+
+
+def public_groomers(groomers):
+    """Only quality-passing listings should appear in normal browse/search flows."""
+    return [g for g in groomers if is_quality_listing(g)]
+
+
 def is_thin_listing(groomer):
     """Backward-compatible wrapper around description_quality_check."""
-    passes, _ = description_quality_check(groomer)
-    return not passes
+    return not is_quality_listing(groomer)
 
 
 def build_homepage(env, groomers, posts):
@@ -515,13 +697,15 @@ def build_state_pages(env, groomers):
         thin_state = len(state_groomers) < config.MIN_STATE_LISTINGS_FOR_INDEX
 
         meta_desc = generate_dynamic_meta_description("state", {
+            "state": state["name"],
+            "count": len(state_groomers),
             "state_description": state["description"],
         })
 
         html = template.render(
             state=state,
             groomers=state_groomers,
-            page_title=f"Dog Groomers in {state['name']} - {config.SITE_NAME}",
+            page_title=seo_title(f"Dog Groomers in {state['name']}", "Local Salons Near You"),
             meta_description=meta_desc,
             request_path=f"/state/{state['slug']}",
             noindex=thin_state,
@@ -560,12 +744,11 @@ def build_city_pages(env, groomers):
         if not thin_city:
             indexed_count += 1
 
-        # Factual meta description from listing count — no marketing boilerplate.
-        listing_word = "groomer" if len(city_groomers) == 1 else "groomers"
-        meta_desc = (
-            f"{len(city_groomers)} dog {listing_word} in {city}, {state_name}. "
-            f"View hours, services, and contact info."
-        )
+        meta_desc = generate_dynamic_meta_description("city", {
+            "city": city,
+            "state": state_name,
+            "count": len(city_groomers),
+        })
 
         state_info = next((s for s in config.US_STATES if s["slug"] == state_slug), None)
 
@@ -575,7 +758,7 @@ def build_city_pages(env, groomers):
             state=state_info or {"name": state_name, "slug": state_slug},
             groomers=city_groomers,
             city_intro="",  # audit-D: no templated intro
-            page_title=f"Dog Groomers in {city}, {state_name} - {config.SITE_NAME}",
+            page_title=seo_title(f"Dog Groomers in {city}, {state_name}", "Salons Near You"),
             meta_description=meta_desc,
             request_path=f"/state/{state_slug}/{city_slug}",
             noindex=thin_city,
@@ -588,33 +771,42 @@ def build_city_pages(env, groomers):
     print(f"Built: {city_count} city pages ({indexed_count} indexed, {city_count - indexed_count} noindexed)")
 
 
-def build_groomer_pages(env, groomers):
+def build_groomer_pages(env, groomers, public_listing_pool):
     """Build individual groomer detail pages."""
     template = env.get_template("groomer.html")
     noindex_count = 0
 
     for groomer in groomers:
-        related = [g for g in groomers if g["slug"] != groomer["slug"]
+        related = [g for g in public_listing_pool if g["slug"] != groomer["slug"]
                    and g.get("state_slug") == groomer.get("state_slug")][:4]
 
         thin = is_thin_listing(groomer)
         if thin:
             noindex_count += 1
 
-        meta_desc = generate_dynamic_meta_description("groomer", {
-            "description": groomer.get("description", ""),
-            "name": groomer.get("name", ""),
-            "city": groomer.get("city", ""),
-            "state": groomer.get("state", ""),
-        })
+        if thin:
+            meta_desc = (
+                f"{groomer.get('name', 'Dog groomer')} in "
+                f"{groomer.get('city', '')}, {groomer.get('state', '')} is being reviewed for accuracy."
+            )
+        else:
+            meta_desc = generate_dynamic_meta_description("groomer", {
+                "description": groomer.get("description", ""),
+                "name": groomer.get("name", ""),
+                "city": groomer.get("city", ""),
+                "state": groomer.get("state", ""),
+            })
 
         html = template.render(
             groomer=groomer,
             related_groomers=related,
-            page_title=f"{groomer['name']} - {groomer['city']}, {groomer['state']} - {config.SITE_NAME}",
+            page_title=groomer_page_title(groomer),
             meta_description=meta_desc,
             request_path=f"/groomer/{groomer['slug']}",
             noindex=thin,
+            suppress_ads=thin,
+            thin_listing=thin,
+            quality_reason=quality_reason(groomer),
         )
 
         output_path = config.OUTPUT_DIR / "groomer" / f"{groomer['slug']}.html"
@@ -627,37 +819,34 @@ def build_category_pages(env, groomers):
     """Build service category pages."""
     template = env.get_template("category.html")
 
-    category_filters = {
-        "full-service": lambda g: g.get("type") in ["Full-Service Salon", "Full-Service Grooming"],
-        "mobile-grooming": lambda g: g.get("type") == "Mobile Grooming" or "Mobile Grooming" in g.get("specialties", []),
-        "breed-specific": lambda g: "Breed-Specific Styling" in g.get("specialties", []) or "Show Grooming" in g.get("specialties", []),
-        "cat-grooming": lambda g: "Cat Grooming" in g.get("services", []) or "Cat Grooming" in g.get("specialties", []),
-        "puppy-first-groom": lambda g: "Puppy First Groom" in g.get("services", []) or "Puppy First Groom" in g.get("specialties", []),
-        "senior-special-needs": lambda g: "Senior Dogs" in g.get("specialties", []) or "Special Needs" in g.get("specialties", []),
-        "self-service-wash": lambda g: "Self-Service Wash" in g.get("services", []) or g.get("type") == "Self-Service Dog Wash",
-        "affordable": lambda g: g.get("price_range") in ["$", "$$"],
-    }
-
     for category in config.CATEGORIES:
-        filter_fn = category_filters.get(category["slug"], lambda g: True)
-        category_groomers = [g for g in groomers if filter_fn(g)]
+        category_groomers = category_groomers_for(groomers, category)
+        preview_groomers = category_groomers[:config.CATEGORY_PREVIEW_LIMIT]
 
         state_counts = {}
         for g in category_groomers:
             s = g.get("state", "")
             if s:
-                state_counts[s] = state_counts.get(s, 0) + 1
-        state_list = sorted(state_counts.items(), key=lambda x: (-x[1], x[0]))
+                slug = g.get("state_slug", "")
+                state_counts[s] = {"name": s, "slug": slug, "count": state_counts.get(s, {}).get("count", 0) + 1}
+        state_list = sorted(state_counts.values(), key=lambda x: (-x["count"], x["name"]))
 
-        meta_desc = generate_dynamic_meta_description("category", {"intro": category["intro"]})
+        meta_desc = generate_dynamic_meta_description("category", {
+            "intro": category["intro"],
+            "category_name": category_seo_title(category),
+        })
 
         html = template.render(
             category=category,
-            groomers=category_groomers,
+            groomers=preview_groomers,
+            total_count=len(category_groomers),
+            showing_limited=len(category_groomers) > len(preview_groomers),
             state_list=state_list,
-            page_title=f"{category['name']} Dog Groomers - {config.SITE_NAME}",
+            page_title=seo_title(category_seo_title(category), "Local Options"),
             meta_description=meta_desc,
             request_path=f"/category/{category['slug']}",
+            noindex=len(category_groomers) == 0,
+            suppress_ads=len(category_groomers) == 0,
         )
 
         output_path = config.OUTPUT_DIR / "category" / f"{category['slug']}.html"
@@ -761,7 +950,8 @@ def build_sitemap(groomers, posts, breeds=None):
             entries.append((f"{config.SITE_URL}/state/{state_slug}/{city_slug}", "0.7", city_lastmod))
 
     for category in config.CATEGORIES:
-        entries.append((f"{config.SITE_URL}/category/{category['slug']}", "0.7", today))
+        if category_groomers_for(groomers, category):
+            entries.append((f"{config.SITE_URL}/category/{category['slug']}", "0.7", today))
 
     for groomer in groomers:
         if not is_thin_listing(groomer):
@@ -798,7 +988,7 @@ Sitemap: {config.SITE_URL}/sitemap.xml
     print("Built: robots.txt")
 
 
-def build_netlify_redirects(groomers, posts, breeds=None):
+def build_netlify_redirects(groomers, posts, breeds=None, public_listing_pool=None):
     """Generate dist/_redirects with one literal 301 per .html page.
 
     Placeholder interpolation in Netlify redirects (both netlify.toml and
@@ -832,7 +1022,7 @@ def build_netlify_redirects(groomers, posts, breeds=None):
         lines.append(f"/state/{slug}.html  /state/{slug}  301!")
 
     lines += ["", "# City pages"]
-    city_groups = group_by_city(groomers)
+    city_groups = group_by_city(public_listing_pool or groomers)
     for (state_slug, _city, city_slug), city_groomers in sorted(city_groups.items()):
         if len(city_groomers) >= 2:
             lines.append(
@@ -843,6 +1033,9 @@ def build_netlify_redirects(groomers, posts, breeds=None):
     for category in config.CATEGORIES:
         slug = category["slug"]
         lines.append(f"/category/{slug}.html  /category/{slug}  301!")
+
+    lines += ["", "# Legacy category aliases"]
+    lines.append("/category/mobile  /category/mobile-grooming  301!")
 
     lines += ["", "# Groomer pages"]
     for groomer in groomers:
@@ -941,6 +1134,8 @@ def build_static_pages(env, groomers=None):
             meta_description=page["description"],
             request_path=canonical_path,
             total_count=total_count,
+            noindex=page["output"].startswith("success/"),
+            suppress_ads=True,
         )
         output_path = config.OUTPUT_DIR / page["output"]
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1131,6 +1326,9 @@ def main():
 
     print("\nFetching groomers...")
     groomers = get_groomers()
+    annotate_listing_quality(groomers)
+    public_listing_pool = public_groomers(groomers)
+    print(f"Quality gate: {len(public_listing_pool)} public listings, {len(groomers) - len(public_listing_pool)} under review")
 
     print("\nDownloading groomer images...")
     download_groomer_images(groomers)
@@ -1147,22 +1345,22 @@ def main():
     env = create_jinja_env()
 
     print("\nBuilding pages...")
-    build_homepage(env, groomers, posts)
-    build_state_pages(env, groomers)
-    build_city_pages(env, groomers)
-    build_groomer_pages(env, groomers)
-    build_category_pages(env, groomers)
-    build_static_pages(env, groomers)
+    build_homepage(env, public_listing_pool, posts)
+    build_state_pages(env, public_listing_pool)
+    build_city_pages(env, public_listing_pool)
+    build_groomer_pages(env, groomers, public_listing_pool)
+    build_category_pages(env, public_listing_pool)
+    build_static_pages(env, public_listing_pool)
     build_blog_page(env, posts)
     build_post_pages(env, posts)
     build_breed_guide(env, breeds)
 
     print("\nBuilding SEO files...")
-    build_sitemap(groomers, posts, breeds)
+    build_sitemap(public_listing_pool, posts, breeds)
     build_robots()
-    build_netlify_redirects(groomers, posts, breeds)
+    build_netlify_redirects(groomers, posts, breeds, public_listing_pool)
     copy_ads_txt()
-    build_search_index(groomers)
+    build_search_index(public_listing_pool)
 
     print(f"\n{'='*50}")
     print(f"Build complete! Output in: {config.OUTPUT_DIR}")
