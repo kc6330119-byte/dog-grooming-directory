@@ -467,9 +467,14 @@ def generate_dynamic_meta_description(page_type, context):
         desc = str(context.get("description", "")).strip()
 
         if desc and len(desc) >= 50:
-            # Prepend business name to ensure uniqueness even if descriptions overlap
-            prefix = f"{name} is a dog groomer in {city}, {state}" if name and city else name
-            candidate = f"{prefix} — {desc}" if prefix else desc
+            # Descriptions already lead with the business name, so they're
+            # unique on their own. Only prepend a name prefix when the
+            # description doesn't already start with the business name.
+            if name and not desc.lower().startswith(name.lower()):
+                prefix = f"{name} is a dog groomer in {city}, {state}" if name and city else name
+                candidate = f"{prefix} — {desc}" if prefix else desc
+            else:
+                candidate = desc
             return truncate_at_word(candidate, 155)
 
         # Fallback: structured meta from business data
