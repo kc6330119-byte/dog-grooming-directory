@@ -302,6 +302,23 @@
             </div>
             {% endif %}
 
+            <!-- Grooming Guides -->
+            {% if guide_links %}
+            <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-6">
+                <h3 class="font-semibold text-gray-900 mb-4">Grooming Guides</h3>
+                <ul class="space-y-2">
+                    {% for link in guide_links %}
+                    <li>
+                        <a href="{{ link.url }}"
+                           class="flex items-center gap-2 w-full py-2.5 px-3 bg-gray-50 hover:bg-violet-50 hover:text-violet-700 text-gray-700 text-sm font-medium rounded-lg border border-gray-100 transition-colors">
+                            📖 {{ link.label }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
             <!-- Share -->
             <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-6">
                 <h3 class="font-semibold text-gray-900 mb-3">Share This Groomer</h3>
@@ -356,34 +373,7 @@
 <!-- Structured Data: LocalBusiness -->
 {% autoescape false %}
 <script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": {{ groomer.name | tojson }},
-    "description": {{ groomer.description | tojson }},
-    {% if groomer.photo_url %}
-    "image": {{ groomer.photo_url | tojson }},
-    {% endif %}
-    "address": {
-        "@type": "PostalAddress",
-        "streetAddress": {{ groomer.address | tojson }},
-        "addressLocality": {{ groomer.city | tojson }},
-        "addressRegion": {{ groomer.state | tojson }},
-        "postalCode": {{ groomer.zip | tojson }},
-        "addressCountry": "US"
-    },
-    {% if groomer.phone %}
-    "telephone": {{ groomer.phone | tojson }},
-    {% endif %}
-    {% if groomer.website_url %}
-    "url": {{ groomer.website_url | tojson }},
-    {% endif %}
-    {% if groomer.google_maps_url %}
-    "hasMap": {{ groomer.google_maps_url | tojson }},
-    {% endif %}
-    "openingHours": {{ groomer.hours | tojson }},
-    "priceRange": {{ groomer.price_range | tojson }}
-}
+{{ groomer_jsonld | tojson }}
 </script>
 {% endautoescape %}
 

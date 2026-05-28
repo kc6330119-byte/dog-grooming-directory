@@ -776,6 +776,72 @@ def build_city_pages(env, groomers):
     print(f"Built: {city_count} city pages ({indexed_count} indexed, {city_count - indexed_count} noindexed)")
 
 
+_GUIDE_LINKS_COMMON = [
+    ("How to Choose a Dog Groomer Near You", "/blog/how-to-choose-a-dog-groomer-near-you"),
+    ("What to Expect at a Grooming Appointment", "/blog/what-happens-at-a-dog-grooming-appointment-step-by-step"),
+    ("Dog Grooming Prices Explained", "/blog/dog-grooming-prices-explained"),
+]
+_GUIDE_LINKS_BY_TYPE = {
+    "Mobile Grooming": [
+        ("Mobile vs. Salon Grooming: Which Is Right?", "/blog/mobile-vs-salon-dog-grooming-which-is-right"),
+        ("How to Find a Mobile Dog Groomer", "/blog/how-to-find-mobile-dog-groomer"),
+    ],
+    "Self-Service Wash": [
+        ("How to Groom Your Dog at Home", "/blog/how-to-groom-dog-at-home"),
+        ("Essential Dog Grooming Tools", "/blog/essential-dog-grooming-tools-guide"),
+    ],
+    "Pet Spa": [
+        ("Between-Groom Maintenance Tips", "/blog/between-groom-maintenance-tips"),
+    ],
+}
+
+
+def groomer_localbusiness_jsonld(groomer):
+    """Assemble valid LocalBusiness JSON-LD. Conditional fields are only included
+    when present so we never emit empty/invalid values. openingHours is omitted:
+    the source is a freeform human-readable string, not the schema.org format, so
+    emitting it would be invalid markup."""
+    data = {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": groomer.get("name"),
+        "description": groomer.get("description"),
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": groomer.get("address"),
+            "addressLocality": groomer.get("city"),
+            "addressRegion": groomer.get("state"),
+            "postalCode": groomer.get("zip"),
+            "addressCountry": "US",
+        },
+    }
+    if groomer.get("photo_url"):
+        data["image"] = groomer["photo_url"]
+    if groomer.get("phone"):
+        data["telephone"] = groomer["phone"]
+    if groomer.get("website_url"):
+        data["url"] = groomer["website_url"]
+    if groomer.get("google_maps_url"):
+        data["hasMap"] = groomer["google_maps_url"]
+    price_range = str(groomer.get("price_range") or "").strip()
+    if price_range:
+        data["priceRange"] = price_range
+    return data
+
+
+def grooming_guide_links(groomer):
+    """Contextual internal links to editorial content, varied by listing type so
+    every page links into the site's real guides rather than carrying identical
+    boilerplate."""
+    links = list(_GUIDE_LINKS_BY_TYPE.get(groomer.get("type", ""), []))
+    for item in _GUIDE_LINKS_COMMON:
+        if len(links) >= 4:
+            break
+        links.append(item)
+    links.append(("Dog Grooming Guide by Breed", "/dog-grooming-guide"))
+    return [{"label": l, "url": u} for l, u in links]
+
+
 def build_groomer_pages(env, groomers, public_listing_pool):
     """Build individual groomer detail pages."""
     template = env.get_template("groomer.html")
@@ -805,6 +871,8 @@ def build_groomer_pages(env, groomers, public_listing_pool):
         html = template.render(
             groomer=groomer,
             related_groomers=related,
+            guide_links=grooming_guide_links(groomer),
+            groomer_jsonld=groomer_localbusiness_jsonld(groomer),
             page_title=groomer_page_title(groomer),
             meta_description=meta_desc,
             request_path=f"/groomer/{groomer['slug']}",
