@@ -163,3 +163,25 @@ You asked to avoid changes while the review is outstanding — that's reasonable
 - The real work is **after** the result: this site needs a *content* answer (original value per page + a genuine editorial body), not another technical pass. Budget for that rather than for a fourth polish-and-resubmit cycle.
 
 **Bottom line:** The build is clean; the *content model* is the problem, and your own traffic data shows Google has already reached that conclusion. The fix is strategic (what these pages are and what value they add), not cosmetic.
+
+---
+
+## Remediation implemented (2026-05-28)
+
+The content-model fix was built and shipped (the decision was made not to wait for the likely rejection):
+
+- **Replaced spun descriptions with fact-grounded ones** (`generate_fact_descriptions.py`). Each listing description is composed only from facts true for that business — Airtable fields joined to the Outscraper `about` attributes by name+city+state (97.1% match). Variation comes from real differing facts, removing the scaled-content-abuse signal (Finding A).
+- **Tightened the index gate** — `MIN_DESCRIPTION_LENGTH` raised 250→300. The gate now indexes ~2,272 of 5,316 listings (~43%) and noindexes the rest, shrinking the synthetic surface (Findings 3, B).
+- **Added per-listing internal links to editorial content** (breed guide + relevant blog how-tos, varied by listing type) so indexed pages are part of a content ecosystem (Finding 2).
+- **Cleaned LocalBusiness JSON-LD** — dropped the invalid freeform `openingHours`, made `priceRange` conditional. Did **not** add `aggregateRating` from scraped Google ratings (structured-data-spam risk).
+
+Prior descriptions backed up to `data/decription_backup_20260528.json`.
+
+**Honest framing:** this removes the spun-content signal and halves the thin-page footprint, but it does not add original value beyond the Google Business Profile data. Better odds than the two failed sites — not likely approval.
+
+## Ongoing maintenance — whenever you refresh data
+
+Two steps keep this remediation intact (also documented in `CLAUDE.md`):
+
+1. **Re-run `scripts/extract_gsc_protected.py` against a fresh GSC Performance export** so newly-ranking pages are added to `data/gsc_protected_urls.txt` and stay grandfathered past the quality gate.
+2. **Re-run `generate_fact_descriptions.py` (dry run, then `--apply`)** so new listings get the same fact-grounded treatment. The calibration helpers (`analyze_fact_coverage.py`, `calibrate_gate.py`) are committed for re-checking join coverage and the gate threshold after a data change.

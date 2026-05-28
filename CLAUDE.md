@@ -38,6 +38,13 @@ Source data flows: Outscraper export → cleaned CSV → Airtable → `build.py`
 - `refresh_photos.py` — fetches fresh Google Places photos for groomers with empty Photo URL (needs `GOOGLE_PLACES_API_KEY`).
 - `scripts/extract_gsc_protected.py` — regenerates `data/gsc_protected_urls.txt` from a GSC Performance export (see quality gate below).
 
+### Whenever you refresh data (don't skip these two)
+
+After adding/refreshing listings, two steps keep the AdSense/SEO remediation intact:
+
+1. **Re-run `scripts/extract_gsc_protected.py` against a fresh GSC Performance export** so newly-ranking pages get added to `data/gsc_protected_urls.txt` and stay grandfathered past the quality gate (otherwise a page that started earning Google traffic could be noindexed on the next build).
+2. **Re-run `generate_fact_descriptions.py` (dry run, then `--apply`)** so any new listings get fact-grounded descriptions like the rest. New listings ship with empty/auto descriptions until this runs — leaving them unprocessed reintroduces thin/low-value pages. The calibration helpers (`analyze_fact_coverage.py`, `calibrate_gate.py`) are committed if you need to re-check join coverage or the gate threshold after a data change.
+
 ## Architecture
 
 **`config.py`** is the single source of truth for site constants: Airtable/AdSense/GA settings (all via env vars with defaults), SEO thresholds, the `CATEGORIES` list, the `US_STATES` list (each with a long editorial `description`), the `AUTHORS` map (E-E-A-T author bios for blog posts), and the quality-gate vocabularies (`JUNK_DESCRIPTION_TERMS`, `GROOMING_VOCAB`).
