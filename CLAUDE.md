@@ -36,13 +36,13 @@ Source data flows: Outscraper export → cleaned CSV → Airtable → `build.py`
 - `upload_to_airtable.py` — upserts `Groomers_VALIDATED.csv` to Airtable, matching on Google Maps URL. Preserves editorial fields, updates operational fields.
 - `upload_blog_posts.py` — upserts JSON files from `blog_posts/` to the Airtable Blog Posts table, matching on Slug.
 - `refresh_photos.py` — fetches fresh Google Places photos for groomers with empty Photo URL (needs `GOOGLE_PLACES_API_KEY`).
-- `scripts/extract_gsc_protected.py` — regenerates `data/gsc_protected_urls.txt` from a GSC Performance export (see quality gate below).
+- `scripts/extract_gsc_protected.py` — refreshes `data/gsc_protected_urls.txt` from a GSC Performance export (see quality gate below). **Merges by default** (unions click-earning slugs into the existing list, never drops anything); `--include-impressions` adds >5-impression pages too, `--overwrite` rebuilds from scratch. Don't `--overwrite` during a traffic dip — see the refresh note below.
 
 ### Whenever you refresh data (don't skip these two)
 
 After adding/refreshing listings, two steps keep the AdSense/SEO remediation intact:
 
-1. **Re-run `scripts/extract_gsc_protected.py` against a fresh GSC Performance export** so newly-ranking pages get added to `data/gsc_protected_urls.txt` and stay grandfathered past the quality gate (otherwise a page that started earning Google traffic could be noindexed on the next build).
+1. **Re-run `scripts/extract_gsc_protected.py` against a fresh GSC Performance export** so newly-ranking pages get added to `data/gsc_protected_urls.txt` and stay grandfathered past the quality gate (otherwise a page that started earning Google traffic could be noindexed on the next build). The script **merges** by default — it preserves every existing entry and adds the export's click-earners. **Do not pass `--overwrite`** (and be wary of `--include-impressions`): a single export is a 28-day snapshot, and during a ranking demotion impressions are depressed, so overwriting would *drop* pages that are temporarily suppressed and dump in hundreds of impression-only pages from any short spike — re-inflating the thin indexed surface the remediation exists to shrink. Merge is the safe, idempotent operation. (This is exactly how the list grew 350→396 on 2026-06-06, recovering 36 click-earning pages the stale list was letting the gate noindex.)
 2. **Re-run `generate_fact_descriptions.py` (dry run, then `--apply`)** so any new listings get fact-grounded descriptions like the rest. New listings ship with empty/auto descriptions until this runs — leaving them unprocessed reintroduces thin/low-value pages. The calibration helpers (`analyze_fact_coverage.py`, `calibrate_gate.py`) are committed if you need to re-check join coverage or the gate threshold after a data change.
 
 ## Architecture
@@ -66,7 +66,7 @@ This is an AdSense/SEO-driven site, and the central design constraint is **not i
 
 - `description_quality_check()` / `annotate_listing_quality()` decide whether each listing is "public". A listing must have a description ≥ `MIN_DESCRIPTION_LENGTH` (300 chars), contain grooming vocabulary, avoid junk patterns, and have at least one contact/service signal. Repetitive description openings are also rejected (this catches chain locations like Petco/PetSmart whose fact descriptions share an identical opening). With the fact-grounded descriptions, this gate currently indexes ~2,270 of 5,316 listings (~43%) and noindexes the rest, deliberately shrinking the synthetic indexed surface.
 - `public_groomers()` filters to passing listings. **Browse/search surfaces (homepage, state, city, category, sitemap, search index) are built from this filtered pool**, while `build_groomer_pages()` still emits a page for *every* groomer — failing ones get `noindex` + ads suppressed rather than being deleted, so existing URLs don't 404.
-- **GSC protection**: slugs listed in `data/gsc_protected_urls.txt` are grandfathered past the gate so pages already earning Google traffic can't regress. Refresh this list from a fresh GSC export via `scripts/extract_gsc_protected.py`.
+- **GSC protection**: slugs listed in `data/gsc_protected_urls.txt` are grandfathered past the gate so pages already earning Google traffic can't regress. Refresh this list (merge-by-default) from a fresh GSC export via `scripts/extract_gsc_protected.py` — see the "Whenever you refresh data" note for why you must merge, not overwrite.
 - State pages noindex below `MIN_STATE_LISTINGS_FOR_INDEX` (3); city pages noindex below `MIN_CITY_LISTINGS_FOR_INDEX` (10). City pages deliberately carry **no templated intro** — a prior templated intro created ~749 doorway-page near-duplicates that AdSense flagged.
 
 ### SEO/template conventions

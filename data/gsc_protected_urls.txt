@@ -1,8 +1,8 @@
-# Groomer slugs with measurable Google traffic (clicks>0 OR impressions>5)
-# Source: GSC export 2026-04-29 (28-day window)
-# These are grandfathered through the new description_quality_check until 2026-06-29.
-# Re-run extract_gsc_protected.py to refresh.
+# Groomer slugs grandfathered past description_quality_check in build.py.
+# Mode: MERGE | signal: clicks>0 | source: https___doggroomerlocator.com_-Performance-on-Search-2026-06-06.xlsx
+# Merge preserves all prior entries; overwrite would drop pages not in this export.
 2c-k9-grooming-nampa
+360petgrooming-gaithersburg
 4-dogs-inc-torrance
 a-1-pet-boarding-grooming-pineville
 a-babys-pawtique-north-syracuse
@@ -11,6 +11,10 @@ a-e-grooming-blackwood
 a-luxury-dog-cat-grooming-san-jose
 a-pet-spa-colorado-springs
 a-pet-spa-everett
+adk-grooming-fort-ann
+adorable-creatures-dog-grooming-and-retreat-pipersville
+all-4-paws-exeter
+all-about-the-pooch-maricopa
 all-breed-grooming-boarding-and-daycare-evansville
 all-breed-pet-grooming-springfield
 all-dogs-grooming-honolulu-honolulu
@@ -18,21 +22,25 @@ all-fur-paws-old-greenwich-old-greenwich
 all-fur-paws-pet-market-grooming-oklahoma-city
 all-groomed-up-saugerties
 all-tails-pet-spa-jacksonville
+amanda-s-ark-pet-care-llc-greensboro
 amandas-dog-grooming-syracuse
 amore-pet-care-of-la-bossier-city
 andys-pet-grooming-and-daycare-tarzana
 angie-s-pet-grooming-oskaloosa
 animal-friends-pampered-paws-bealeton
+animal-friends-pet-care-panama-city
 animal-house-grooming-los-angeles
 animaland-grooming-salon-union-city
 anitas-pets-grooming-winnetka
 aria-pet-spa-riverside
 ashley-s-grooming-llc-anderson
+ashleys-pet-grooming-corona
 atlantic-pet-spa-brooklyn
 atomic-dog-pet-salon-north-port
 aunt-jayne-s-groom-room-wall
 bark-a-salon-for-dogs-indianapolis
 bark-avenue-grooming-new-york
+bark-avenue-pet-grooming-muscatine
 bark-on-green-pet-salon-purcell
 bark-public-house-nashville
 bark-shop-altoona-altoona
@@ -53,6 +61,7 @@ bubbles-and-bows-grooming-topeka-ks-topeka
 bubbles-and-bows-loves-park-loves-park
 bubbles-beyond-pet-salon-maxatawny
 bubbles-grooming-tyrone
+by-the-bey-grooming-orleans
 callin-all-paws-pet-grooming-fort-myers
 camies-cutz-chester
 canine-couture-llc-ravenna
@@ -75,6 +84,7 @@ dawg-barn-marietta
 debbie-s-dog-grooming-del-rio
 debies-pet-grooming-zillah
 denali-s-pet-spa-wasilla
+denise-s-dapper-dogs-wormleysburg
 diamond-dogs-grooming-baltimore
 diane-s-pet-grooming-llc-ormond-beach
 dig-that-do-pittsburgh
@@ -92,6 +102,7 @@ doggy-style-salon-denver
 dogs-of-greenville-greenville
 dogspaw-grooming-el-paso
 downtown-dog-jasper
+downtown-pups-hopewell
 eagle-stadium-dog-grooming-allen
 elevate-canine-kutz-bismarck
 env-pet-spa-santa-fe
@@ -99,10 +110,13 @@ fairy-tails-grooming-seville
 fluffin-awesome-mutts-dog-grooming-spa-rutland
 fluffy-bubbles-pet-spa-quincy
 for-pets-sake-grooming-salon-blountstown
+four-dirty-paws-ninnekah
+four-paws-salon-spa-bonita-springs
 freedom-dog-spa-edmond
 fur-s-a-flyin-llc-mankato
 furry-land-central-indiana-indianapolis
 furry-land-mobile-grooming-corpus-christi-corpus-christi
+furry-n-fabulous-lower-east-side-new-york
 gentle-groomer-phoenix
 glamour-and-sunshine-pet-grooming-sun-city
 glamour-pet-grooming-louisville
@@ -114,6 +128,7 @@ groomer-a-go-go-oklahoma-city
 groomers-warehouse-houston
 grooming-at-home-romney
 grooming-at-tiffany-s-derry
+grooming-by-beth-llc-francestown
 grooming-by-brenda-des-moines
 grooming-by-chastity-ridgecrest
 grooming-by-diana-shelton
@@ -123,6 +138,7 @@ happy-and-lucky-pet-salon-and-mobile-grooming-las-vegas
 happy-hound-pet-salon-dripping-springs
 happy-paws-grooming-fort-lee
 happy-pawz-dog-grooming-boarding-mobile-grooming-daycare-and-training-overland-park
+happy-pets-spa-kissimmee
 haus-of-paws-berwyn
 heads-to-tails-aberdeen
 hidden-paradise-pet-resort-sioux-falls
@@ -134,6 +150,7 @@ i-m-in-doggy-heaven-midland
 ice-on-the-remi-grooming-whittier
 jade-s-mobile-pet-grooming-llc-atlanta
 jazmins-grooms-and-designs-billings
+jenn-s-pampered-pet-grooming-elkins
 jillians-mobile-pet-grooming-shippensburg
 jo-mi-pet-grooming-palmyra
 just-around-the-corner-dog-grooming-boutique-seattle
@@ -153,15 +170,18 @@ lowcountry-pet-grooming-and-resort-moncks-corner
 lucky-chance-pet-resort-spa-quakertown
 lucky-puppy-dog-grooming-louisville
 luckys-yellow-rubber-ducky-inc-shreveport
+lulus-pet-grooming-morrisville
 luna-clipz-pet-salon-indianapolis
 luthers-pooch-parlor-ponderay-ponderay
 lux-grooming-boutique-eagle
+luxe-grooming-house-morrow
 ma-pet-grooming-edison
 main-street-pups-belleville
 melissa-s-k9-design-pet-salon-llc-salem
 mischievous-mutts-huntingburg
 miss-doolittles-pet-salon-boutique-minersville
 mobile-dog-grooming-service-north-las-vegas
+moody-mutts-harrisburg
 moon-doggy-s-grooming-santa-monica
 mrs-b-s-puppy-groom-room-wapello
 mud-puppies-self-serve-dog-wash-erie
@@ -170,12 +190,15 @@ muddy-paws-self-wash-pet-supplies-and-more-corpus-christi
 mutts-cuts-auburn
 nicki-s-cutz-reading
 northern-pawz-dog-grooming-and-daycare-stacy
+nose-to-toes-dog-grooming-osceola
 old-dog-grooming-salon-bellerose
+pacific-paws-pet-salon-at-the-aina-haina-shopping-center-honolulu
 pampered-paws-west-grooming-sun-city-west
 pampered-pawz-new-orleans
 pampered-pets-resort-and-spa-east-dundee
 paragon-grooming-pet-co-lynden
 park-ave-pet-spa-holland-patent
+passion-fur-pets-grooming-west-warwick
 paw-dat-pet-grooming-daycare-boarding-metairie
 paw-fect-grooming-by-michiko-pleasant-valley
 paw-fection-pet-spa-preston
@@ -197,6 +220,7 @@ pawsitively-pampered-pet-salon-schenectady
 pawsitively-stylin-radcliff
 pawz-n-klawz-des-moines
 pea-ridge-woof-club-pea-ridge
+penny-s-paw-spa-spokane
 pepper-s-pawfection-ames
 pet-evolution-grooming-self-wash-healthy-food-port-orange
 pet-spa-paws-and-play-rochester
@@ -213,6 +237,7 @@ petco-grooming-north-miami-beach
 petco-grooming-raritan
 petco-grooming-san-antonio
 petco-grooming-speedway
+petco-grooming-springfield-62704
 petco-grooming-wadsworth
 petco-grooming-wallingford
 petco-grooming-warwick
@@ -226,6 +251,7 @@ petsense-by-tractor-supply-lancaster
 petsmart-grooming-anderson
 petsmart-grooming-colorado-springs
 petsmart-grooming-dayton
+petsmart-grooming-monroe
 petsmart-grooming-north-brunswick-township
 petsmart-grooming-orange-park
 petsmart-grooming-sioux-falls
@@ -236,7 +262,10 @@ petz-kutz-grooming-salon-union
 pink-paws-grooming-derby
 pipe-s-pet-grooming-mobile-randolph
 pirate-puppies-grooming-salon-belleville
+pittsburgh-pet-services-north-versailles-township
+planet-pooch-franklin-square
 plush-spa-syracuse
+pooch-perfect-rochester
 poochie-spa-jacksonville
 portland-city-pet-groomers-portland
 praise-the-paw-denver
@@ -248,9 +277,12 @@ pride-groom-llc-sheridan
 pride-groom-pet-grooming-las-cruces
 prideful-grooming-east-rutherford
 prim-and-paw-purr-landrum
+prissy-paws-pet-spaw-van-buren
 puppy-love-grooming-el-paso
+puppy-love-grooming-la-grange
 puppy-love-grooming-ne-el-paso
 puppy-pad-styles-spokane
+pupz-pet-spa-llc-manchester
 purfect-paws-grooming-hotel-lewis
 purrfect-paws-pet-spa-sauk-rapids
 purrfect-pawz-mobile-pet-grooming-worcester
@@ -261,6 +293,7 @@ republic-of-paws-colorado-springs
 rex-seattle-pet-grooming-spa-seattle
 river-pine-pet-salon-waterloo
 rockfield-pet-spa-charlotte
+rolling-tails-woodhaven
 roxy-s-groom-room-canton
 royal-decision-co-pet-spa-detroit
 ruff-haus-pittsburgh
@@ -275,6 +308,7 @@ seattle-canine-club-south-lake-union-seattle
 second-home-pet-services-west-des-moines
 shampooch-dog-spaw-phoenix
 shampooches-pet-spa-llc-buffalo
+shook-paws-grooming-spa-pittsburgh
 showcase-grooming-salon-pennsville
 shower-your-pet-mt-arlington
 silo-spaw-dog-grooming-durant
@@ -294,14 +328,19 @@ stone-mountain-dog-grooming-formerly-heather-s-clip-and-sit-saylorsburg
 stylin-pooch-dog-boarding-grooming-rescue-badger
 suki-s-dog-salon-johnstown
 tail-wagg-n-cuts-canine-salon-brookings
+taylor-s-grooming-llp-rittman
 that-pet-spot-colonial-heights
 the-bark-factory-albuquerque-87122
 the-barn-dog-grooming-queen-creek
+the-chop-shop-by-scspoodles-prescott
 the-dapper-dog-morgantown-llc-morgantown
+the-dog-ber-shop-gonzales
 the-dog-house-corpus-christi-corpus-christi
 the-dog-man-shop-grooming-salon-stamford
+the-dog-spaw-grooming-worcester
 the-dog-wash-brockport
 the-dogfather-grooming-chester
+the-doggie-den-washington-court-house
 the-doghaus-nampa
 the-fetching-dog-salon-spa-huntington
 the-gilded-groomer-mason-city
@@ -316,20 +355,26 @@ the-magic-groom-bus-mohnton
 the-muddy-puppy-pet-grooming-wallingford
 the-paw-spa-hershey
 the-paw-spa-uniontown
+the-paw-spaw-lexington
 the-paw-wash-oxford
 the-pet-spaw-downtown-indianapolis
 the-pristine-pet-spa-cincinnati
 the-puppy-parlor-yarmouth
 the-ruff-house-stay-play-at-bayside-virginia-beach
+the-shih-shed-richmond
+the-soapy-coyote-self-service-pet-wash-albuquerque
 the-spaw-at-animal-loving-care-brooklyn
+the-sudsy-puppy-odenton
 the-tails-of-tuppers-creek-charleston
 the-wash-dog-seattle
+the-wizard-of-pawz-watertown
 the-woof-grooming-dumfries
 tidy-tails-grooming-bismarck
 trendy-tails-doggy-spa-marietta
 trim-time-inc-glendale
 twist-snout-grooming-studio-longview
 universal-grooming-smyrna
+urban-pet-grooming-llc-panama-city
 urban-woof-nyc-95th-new-york
 very-important-pooch-myrtle-beach
 vip-grooming-north-myrtle-beach
