@@ -38,7 +38,11 @@ MIN_CITY_LISTINGS_FOR_INDEX = 10   # City pages with fewer listings get noindex
                                    # Higher than state because city pages duplicate listings
                                    # already on the state page; they need volume to justify
                                    # a separate indexed URL.
-MIN_DESCRIPTION_LENGTH = 300       # Listing description minimum chars for indexing
+MIN_DESCRIPTION_LENGTH = 230       # Listing description minimum chars for indexing.
+                                   # Recalibrated 2026-06-09: the original 300 was set when
+                                   # every description carried the ~70-char Google-rating
+                                   # sentence, now stripped at fetch (RATING_CLAIM_RE).
+                                   # 230 preserves the same effective content bar.
 CATEGORY_PREVIEW_LIMIT = 120       # Prevent category pages from becoming huge listing dumps
 REPETITIVE_DESCRIPTION_START_WORDS = 8
 REPETITIVE_DESCRIPTION_MAX_REPEATS = 3

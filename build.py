@@ -135,7 +135,7 @@ def fetch_from_airtable():
                 "_airtable_id": record.get("id", ""),
                 "name": fields.get("Name", ""),
                 "slug": slugify(fields.get("Name", "") + "-" + fields.get("City", "")),
-                "description": fields.get("Decription", fields.get("Description", "")),
+                "description": RATING_CLAIM_RE.sub("", fields.get("Decription", fields.get("Description", ""))).strip(),
                 "address": fields.get("Address", ""),
                 "city": fields.get("City", ""),
                 "state": state_name,
@@ -192,6 +192,17 @@ def clear_airtable_photo_url(airtable_id):
         table.update(airtable_id, {"Photo URL": ""})
     except Exception as e:
         print(f"  Warning: could not clear Airtable photo_url for {airtable_id}: {e}")
+
+
+# Third-party rating claims in body copy (every fact-description ended with
+# "It holds a X-star rating from N Google reviews.") are a Google rating-snippet
+# policy risk AND the site's #1 templated shingle (99% of indexable pages).
+# The visible star badge in groomer.html keeps the rating with attribution;
+# the body sentence is stripped at fetch. Same approach as the sister site.
+RATING_CLAIM_RE = re.compile(
+    r"\s*It (?:holds|has|maintains) a [\d.]+-star rating(?: from [\d,]+ Google reviews?)?\.",
+    re.IGNORECASE,
+)
 
 
 def get_groomers():
@@ -978,6 +989,50 @@ def build_search_index(groomers):
     print(f"Built: search-index.json ({len(index)} groomers)")
 
 
+def _stable_lastmods(entries, data_by_url, today):
+    """Per-URL lastmod from a committed content-hash datestore (sitemap_lastmod.json).
+
+    The Airtable "Last Modified" column froze at the 2026-03/04 import, so the
+    sitemap told Google "nothing changed" straight through the 5/28 de-spin —
+    suppressing the recrawl the remediation depended on. This store bumps a
+    URL's date only when its content actually changes: groomer/blog URLs hash
+    canonical JSON of their source data (environment-independent, same dates on
+    Netlify and local); other URLs hash their rendered file. Committed to git.
+    """
+    import hashlib
+    import json as _json
+    store_path = config.BASE_DIR / "sitemap_lastmod.json"
+    try:
+        store = _json.loads(store_path.read_text())
+    except (OSError, ValueError):
+        store = {}
+    dates = {}
+    new_store = {}
+    for url, _priority, _default in entries:
+        rec = store.get(url) or {}
+        data = data_by_url.get(url)
+        if data is not None:
+            basis = _json.dumps(data, sort_keys=True, ensure_ascii=True, default=str)
+            digest = hashlib.sha256(basis.encode("utf-8")).hexdigest()[:16]
+        else:
+            rel = url.replace(config.SITE_URL, "").strip("/")
+            page = config.OUTPUT_DIR / (f"{rel}.html" if rel else "index.html")
+            try:
+                digest = hashlib.sha256(page.read_bytes()).hexdigest()[:16]
+            except OSError:
+                digest = rec.get("hash", "")
+        if digest and digest == rec.get("hash"):
+            date = rec.get("date") or today
+        elif not digest:
+            date = rec.get("date") or today
+        else:
+            date = today
+        dates[url] = date
+        new_store[url] = {"hash": digest, "date": date}
+    store_path.write_text(_json.dumps(new_store, indent=0, sort_keys=True) + "\n")
+    return dates
+
+
 def build_sitemap(groomers, posts, breeds=None):
     """Generate sitemap.xml with per-page lastmod dates.
 
@@ -1038,10 +1093,19 @@ def build_sitemap(groomers, posts, breeds=None):
                 post_lastmod = today
             entries.append((f"{config.SITE_URL}/blog/{post['slug']}", "0.8", post_lastmod))
 
+    data_by_url = {}
+    for groomer in groomers:
+        if not is_thin_listing(groomer):
+            data_by_url[f"{config.SITE_URL}/groomer/{groomer['slug']}"] = groomer
+    for post in posts:
+        if post.get("slug"):
+            data_by_url[f"{config.SITE_URL}/blog/{post['slug']}"] = post
+    lastmods = _stable_lastmods(entries, data_by_url, today)
+
     sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n'
     sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     for url, priority, lastmod in entries:
-        sitemap += f"  <url><loc>{url}</loc><lastmod>{lastmod}</lastmod><priority>{priority}</priority></url>\n"
+        sitemap += f"  <url><loc>{url}</loc><lastmod>{lastmods.get(url, lastmod)}</lastmod><priority>{priority}</priority></url>\n"
     sitemap += "</urlset>"
 
     output_path = config.OUTPUT_DIR / "sitemap.xml"
