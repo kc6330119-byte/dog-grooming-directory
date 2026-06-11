@@ -271,24 +271,22 @@ def fetch_blog_posts():
 
             title = fields.get("Title", "")
 
-            # Support both "Author Key" (config lookup) and direct "Author"/"Author Bio" fields
+            # Author attribution resolves strictly through config.AUTHORS.
+            # Raw Airtable "Author"/"Author Bio" text is never rendered, so
+            # retired bylines in stale records cannot resurface. Unknown keys
+            # or names fall back to the editorial team.
             author_key = fields.get("Author Key", "")
-            if author_key and author_key in config.AUTHORS:
-                author_info = config.AUTHORS[author_key]
-                author_name = author_info["name"]
-                author_credentials = author_info["credentials"]
-                author_bio_text = author_info["bio"]
-            else:
-                # Use direct fields from Airtable
-                author_name = fields.get("Author", "") or config.AUTHORS[config.DEFAULT_AUTHOR_KEY]["name"]
-                author_bio_text = fields.get("Author Bio", "") or config.AUTHORS[config.DEFAULT_AUTHOR_KEY]["bio"]
-                # Try to match author name back to a config key for credentials
+            if author_key not in config.AUTHORS:
+                airtable_author = (fields.get("Author", "") or "").strip().lower()
                 author_key = config.DEFAULT_AUTHOR_KEY
                 for key, info in config.AUTHORS.items():
-                    if info["name"].lower() == author_name.lower():
+                    if info["name"].lower() == airtable_author:
                         author_key = key
                         break
-                author_credentials = config.AUTHORS.get(author_key, config.AUTHORS[config.DEFAULT_AUTHOR_KEY])["credentials"]
+            author_info = config.AUTHORS[author_key]
+            author_name = author_info["name"]
+            author_credentials = author_info["credentials"]
+            author_bio_text = author_info["bio"]
 
             post = {
                 "title": title,

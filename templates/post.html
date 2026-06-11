@@ -12,9 +12,13 @@
     "image": {{ post.featured_image | tojson }},
     {% endif %}
     "author": {
+        "@type": "Organization",
+        "name": {{ post.author | tojson }}
+    },
+    "editor": {
         "@type": "Person",
-        "name": {{ post.author | tojson }},
-        "description": {{ post.author_credentials | tojson }}
+        "name": "Kevin Collins",
+        "sameAs": "https://www.linkedin.com/in/kevin-collins-48934a7"
     },
     "publisher": {
         "@type": "Organization",

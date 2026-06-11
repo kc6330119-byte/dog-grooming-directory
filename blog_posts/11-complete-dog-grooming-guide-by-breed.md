@@ -1,9 +1,5 @@
 # The Complete Dog Grooming Guide by Breed
 
-*By Sarah Mitchell, Certified Master Groomer (CMG), International Professional Groomers Inc.*
-
----
-
 Every dog owner knows that grooming matters. But what most people don't realize is that the right grooming routine depends almost entirely on one thing: your dog's coat type. A Poodle and a Labrador both need regular grooming, but they need completely different kinds of care — and applying the wrong approach to either one wastes your time, stresses your dog, and can cause real coat damage.
 
 This guide breaks down grooming by coat type so you can walk into your groomer's with a clear picture of what your dog actually needs — and understand why. We've expanded the guide to cover **67 breeds**, adding data on shedding level, hypoallergenic status, bathing frequency, and professional grooming guidance alongside the coat-type breakdowns below.
@@ -121,7 +117,3 @@ Not every groomer has equal experience with every coat type. If you have a wire-
 The [Dog Groomer Locator](https://doggroomerlocator.com) directory lets you search by location and browse groomer listings, making it easier to find someone with the right expertise for your specific breed. Read service listings carefully, look for breed specialties, and don't hesitate to ask a groomer directly about their experience before booking.
 
 Your dog's coat is a long-term project — the right grooming routine, started early and maintained consistently, is one of the best things you can do for your dog's comfort, health, and appearance.
-
----
-
-*Sarah Mitchell is a Certified Master Groomer (CMG) with 15 years of experience in salon, mobile, and specialty grooming. She writes regularly about breed-specific grooming for [Dog Groomer Locator](https://doggroomerlocator.com).*

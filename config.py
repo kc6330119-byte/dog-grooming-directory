@@ -64,22 +64,18 @@ GROOMING_VOCAB = [
     "boutique", "kennel", "hound", "canine", "animal", "k9", "k-9",
 ]
 
-# Authors — E-E-A-T: each blog post must have a credited author with credentials
+# Authors — content is credited to the editorial team (an organization, not a
+# person). Do NOT add named authors with credentials unless they are real,
+# verifiable people who actually contributed.
 AUTHORS = {
-    "sarah-mitchell": {
-        "name": "Sarah Mitchell",
-        "credentials": "Certified Master Groomer (CMG), International Professional Groomers Inc.",
-        "bio": "Sarah Mitchell is a Certified Master Groomer with over 15 years of experience in professional pet grooming. She has worked with all breeds from toy poodles to giant schnauzers and specializes in breed-specific styling and coat health. Sarah writes about grooming techniques, coat care, and choosing the right groomer for your dog.",
-        "headshot": "",
-    },
-    "dog-groomer-locator-staff": {
-        "name": "Dog Groomer Locator Staff",
-        "credentials": "Pet care research team",
-        "bio": "The Dog Groomer Locator editorial team researches and verifies grooming businesses across the United States, helping dog owners find trusted local groomers with transparent pricing, honest reviews, and professional credentials.",
+    "editorial-team": {
+        "name": "Dog Groomer Locator Editorial Team",
+        "credentials": "",
+        "bio": "Our editorial team researches grooming topics using verified business data and breed-care references. Content is drafted with AI assistance, fact-checked against published sources, and reviewed by publisher Kevin Collins.",
         "headshot": "",
     },
 }
-DEFAULT_AUTHOR_KEY = "sarah-mitchell"
+DEFAULT_AUTHOR_KEY = "editorial-team"
 
 # US States for state-based pages
 US_STATES = [
