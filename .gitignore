@@ -11,3 +11,6 @@ outscraper_incoming/*
 !outscraper_incoming/.gitkeep
 outscraper_processed/*
 !outscraper_processed/.gitkeep
+
+# local crawl/LLM caches for website_descriptions.py (not used by the build)
+data/site_cache/

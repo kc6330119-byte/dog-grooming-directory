@@ -47,13 +47,16 @@ LLM_CACHE = CACHE_DIR / "llm"
 for d in (CRAWL_CACHE, LLM_CACHE):
     d.mkdir(parents=True, exist_ok=True)
 
+import config
+
 DESC_FIELD = "Decription"  # NB: misspelled in Airtable, matches the live field
 HAIKU_MODEL = "claude-haiku-4-5-20251001"
 UA = "Mozilla/5.0 (compatible; DogGroomerLocatorBot/1.0; +https://doggroomerlocator.com/about)"
 TIMEOUT = 8
 MIN_SITE_TEXT = 250          # below this, treat the site as no usable content
-MIN_DESC_LEN = 300           # must match config.MIN_DESCRIPTION_LENGTH gate
+MIN_DESC_LEN = config.MIN_DESCRIPTION_LENGTH  # same bar as the build's index gate
 CRAWL_DELAY = 0.5            # politeness pause between requests to the same host
+PROMPT_VERSION = "v2"        # bump to invalidate the LLM cache when the prompt changes
 
 SOCIAL = ("facebook.", "instagram.", "m.facebook", "fb.", "linktr.ee", "yelp.",
           "google.com", "sites.google", "business.site", "booking.", "moego.pet",
@@ -177,7 +180,9 @@ LLM_SYSTEM = (
     "write an ORIGINAL 2-4 sentence description in your own words grounded ONLY in those "
     "facts plus the structured data provided. Rules: never copy sentences or distinctive "
     "phrases from the source text — paraphrase into your own words; never invent facts; no "
-    "filler like 'nestled', 'boasting', 'dedicated team', 'state-of-the-art'. "
+    "filler like 'nestled', 'boasting', 'dedicated team', 'state-of-the-art'; NEVER mention "
+    "Google ratings, star ratings, review counts, or reviews — describe the business, not "
+    "its reputation scores. "
     "Set sufficient=true whenever the text contains ANY concrete information about THIS "
     "business (e.g. services offered, days open, self- vs full-service, owner or staff "
     "experience, location, or approach). Only set sufficient=false when the text is purely "
@@ -193,7 +198,7 @@ LLM_SCHEMA_HINT = (
 
 
 def llm_compose(name, city, state, gbp_summary, site_text, use_cache=True):
-    key = hashlib.md5(f"{name}|{city}|{state}|{site_text[:4000]}".encode()).hexdigest()
+    key = hashlib.md5(f"{PROMPT_VERSION}|{name}|{city}|{state}|{site_text[:4000]}".encode()).hexdigest()
     cache_path = LLM_CACHE / f"{key}.json"
     if use_cache and cache_path.exists():
         return json.loads(cache_path.read_text())
@@ -237,11 +242,12 @@ def gbp_fallback(record_fields):
 
 
 def gbp_summary(f):
+    # Deliberately excludes Rating/Review Count: rating claims in body copy are a
+    # rating-snippet policy risk (stripped sitewide 2026-06-09) and must not be
+    # reintroduced by the LLM. The visible star badge carries the rating instead.
     bits = [f.get("Type", "")]
     if f.get("Services"): bits.append("services: " + ", ".join(f["Services"]))
     if f.get("Specialties"): bits.append("specialties: " + ", ".join(f["Specialties"]))
-    if f.get("Rating") and f.get("Review Count"):
-        bits.append(f"{f['Rating']} stars / {f['Review Count']} reviews")
     return "; ".join(b for b in bits if b)
 
 
@@ -312,8 +318,13 @@ def main():
         print("\nDRY RUN — nothing written. Re-run with --apply to write Airtable.")
         return
 
-    updates = [{"id": r["id"], "fields": {DESC_FIELD: r["description"]}} for r in results if r["description"]]
-    print(f"\n--apply: writing {len(updates)} records ...")
+    # Only write website-derived descriptions. Fallback records keep their existing
+    # Phase 1 fact description in Airtable — rewriting them would be a no-op churn
+    # (and could bump sitemap lastmod hashes without a real content change).
+    updates = [{"id": r["id"], "fields": {DESC_FIELD: r["description"]}}
+               for r in results if r["description"] and r["source"] == "website"]
+    print(f"\n--apply: writing {len(updates)} website-derived records "
+          f"(fallback records left untouched) ...")
     for i in range(0, len(updates), 10):
         table.batch_update(updates[i:i+10])
         print(f"  updated {min(i+10, len(updates))}/{len(updates)}")
