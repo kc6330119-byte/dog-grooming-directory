@@ -854,28 +854,30 @@ def grooming_guide_links(groomer):
 def build_groomer_pages(env, groomers, public_listing_pool):
     """Build individual groomer detail pages."""
     template = env.get_template("groomer.html")
-    noindex_count = 0
+    gone_count = 0
 
     for groomer in groomers:
         related = [g for g in public_listing_pool if g["slug"] != groomer["slug"]
                    and g.get("state_slug") == groomer.get("state_slug")][:4]
 
-        thin = is_thin_listing(groomer)
-        if thin:
-            noindex_count += 1
+        # Listings that fail the quality gate get NO page at all. They used to render a
+        # "being reviewed for accuracy" stub, which (a) claimed an editorial review process
+        # the site does not perform — AdSense P4 forbids claiming services not provided —
+        # and (b) was a ~30-word under-construction screen, barred by P1. There is no data
+        # to expand them from (Services 17.2% filled, Specialties 11.4%), so per P2's
+        # expand-or-consolidate rule they are consolidated away: the URL returns 410 Gone
+        # (see build_netlify_redirects). This reverses automatically if a listing's data
+        # later passes the gate.
+        if is_thin_listing(groomer):
+            gone_count += 1
+            continue
 
-        if thin:
-            meta_desc = (
-                f"{groomer.get('name', 'Dog groomer')} in "
-                f"{groomer.get('city', '')}, {groomer.get('state', '')} is being reviewed for accuracy."
-            )
-        else:
-            meta_desc = generate_dynamic_meta_description("groomer", {
-                "description": groomer.get("description", ""),
-                "name": groomer.get("name", ""),
-                "city": groomer.get("city", ""),
-                "state": groomer.get("state", ""),
-            })
+        meta_desc = generate_dynamic_meta_description("groomer", {
+            "description": groomer.get("description", ""),
+            "name": groomer.get("name", ""),
+            "city": groomer.get("city", ""),
+            "state": groomer.get("state", ""),
+        })
 
         html = template.render(
             groomer=groomer,
@@ -885,16 +887,16 @@ def build_groomer_pages(env, groomers, public_listing_pool):
             page_title=groomer_page_title(groomer),
             meta_description=meta_desc,
             request_path=f"/groomer/{groomer['slug']}",
-            noindex=thin,
-            suppress_ads=thin,
-            thin_listing=thin,
+            noindex=False,       # gate-failing listings no longer reach this point
+            suppress_ads=False,
             quality_reason=quality_reason(groomer),
         )
 
         output_path = config.OUTPUT_DIR / "groomer" / f"{groomer['slug']}.html"
         output_path.write_text(html)
 
-    print(f"Built: {len(groomers)} groomer pages ({noindex_count} noindexed as thin content)")
+    print(f"Built: {len(groomers) - gone_count} groomer pages "
+          f"({gone_count} gate-failing listings omitted -> 410 Gone)")
 
 
 def build_category_pages(env, groomers):
@@ -1173,10 +1175,25 @@ def build_netlify_redirects(groomers, posts, breeds=None, public_listing_pool=No
     lines.append("/category/mobile  /category/mobile-grooming  301!")
 
     lines += ["", "# Groomer pages"]
+    gone = []
     for groomer in groomers:
         slug = groomer.get("slug")
-        if slug:
-            lines.append(f"/groomer/{slug}.html  /groomer/{slug}  301!")
+        if not slug:
+            continue
+        if is_thin_listing(groomer):
+            gone.append(slug)
+            continue
+        lines.append(f"/groomer/{slug}.html  /groomer/{slug}  301!")
+
+    # Listings that fail the quality gate have no page (see build_groomer_pages).
+    # 410 Gone is the correct signal: the content is permanently withdrawn, not moved.
+    # A 301 to the state hub would be an "irrelevant or misleading" destination under
+    # AdSense P2's navigation clause, since that hub does not contain the business.
+    if gone:
+        lines += ["", "# Withdrawn listings — 410 Gone (failed the content-quality gate)"]
+        for slug in gone:
+            lines.append(f"/groomer/{slug}  /410.html  410!")
+            lines.append(f"/groomer/{slug}.html  /410.html  410!")
 
     lines += ["", "# Blog posts"]
     for post in posts:
@@ -1187,6 +1204,23 @@ def build_netlify_redirects(groomers, posts, breeds=None, public_listing_pool=No
     output_path = config.OUTPUT_DIR / "_redirects"
     output_path.write_text("\n".join(lines) + "\n")
     print(f"Built: _redirects ({len(lines)} lines)")
+
+
+def build_gone_page(env):
+    """Render /410.html — the body served for withdrawn listing URLs.
+
+    Netlify serves this document with a 410 status via the rules in _redirects.
+    It is noindexed: it is a status page, not content.
+    """
+    html = env.get_template("gone.html").render(
+        page_title="Listing removed",
+        meta_description="This dog groomer listing is no longer published.",
+        request_path="/410",
+        noindex=True,
+        suppress_ads=True,
+    )
+    (config.OUTPUT_DIR / "410.html").write_text(html)
+    print("Built: 410.html (withdrawn-listing page)")
 
 
 def copy_ads_txt():
@@ -1494,6 +1528,7 @@ def main():
     build_sitemap(public_listing_pool, posts, breeds)
     build_robots()
     build_netlify_redirects(groomers, posts, breeds, public_listing_pool)
+    build_gone_page(env)
     copy_ads_txt()
     build_search_index(public_listing_pool)
 
