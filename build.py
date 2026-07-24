@@ -1290,9 +1290,19 @@ STATIC_PAGES = [
 ]
 
 
-def build_static_pages(env, groomers=None):
-    """Build static informational pages."""
+def build_static_pages(env, groomers=None, all_groomers=None):
+    """Build static informational pages.
+
+    `groomers` is the published pool (drives "we list N groomers"). `all_groomers` is
+    every record in the database, so the editorial-standards page can state honestly how
+    many we hold vs. how many meet the publishing standard. Under AdSense P1 the
+    methodology page is the site's primary evidence of curation, so these figures are
+    computed from the build rather than hand-written, and cannot go stale.
+    """
     total_count = len(groomers) if groomers else 0
+    published_count = total_count
+    held_count = len(all_groomers) if all_groomers else 0
+    withheld_count = max(held_count - published_count, 0)
     for page in STATIC_PAGES:
         template = env.get_template(page["template"])
         # Canonical path is extensionless (e.g. /about instead of /about.html).
@@ -1309,6 +1319,10 @@ def build_static_pages(env, groomers=None):
             meta_description=page["description"],
             request_path=canonical_path,
             total_count=total_count,
+            published_count=published_count,
+            held_count=held_count,
+            withheld_count=withheld_count,
+            data_checked_on=config.SITE_DATA_CHECKED_ON,
             noindex=page["output"].startswith("success/"),
             suppress_ads=True,
         )
@@ -1525,7 +1539,7 @@ def main():
     build_city_pages(env, public_listing_pool)
     build_groomer_pages(env, groomers, public_listing_pool)
     build_category_pages(env, public_listing_pool)
-    build_static_pages(env, public_listing_pool)
+    build_static_pages(env, public_listing_pool, all_groomers=groomers)
     build_blog_page(env, posts)
     build_post_pages(env, posts)
     build_breed_guide(env, breeds)

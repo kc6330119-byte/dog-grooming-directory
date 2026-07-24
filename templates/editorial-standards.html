@@ -31,9 +31,41 @@
                 </p>
                 <ul class="space-y-2 ml-4 list-disc">
                     <li>Deduplication against existing listings</li>
-                    <li>Venue verification — confirming the business is a real, operating grooming location</li>
-                    <li>Minimum content standards — listings without enough verified detail are excluded from search indexing</li>
+                    <li>Venue screening — records that are not operating grooming businesses (veterinary practices, pet retail, boarding-only kennels) are removed</li>
+                    <li><strong>Minimum content standard</strong> — a listing is only published if we hold enough substantive, business-specific detail to tell you something a map result would not</li>
                 </ul>
+                {% if published_count and withheld_count %}
+                <p class="mt-4">
+                    We would rather publish nothing than publish a page that tells you less than a
+                    search engine already would. As of the most recent build we hold
+                    <strong>{{ "{:,}".format(held_count) }}</strong> grooming businesses in our database and publish
+                    <strong>{{ "{:,}".format(published_count) }}</strong> of them. The remaining
+                    <strong>{{ "{:,}".format(withheld_count) }}</strong> do not currently meet the standard above and are
+                    <strong>not published</strong> — their pages are withdrawn rather than shown as empty
+                    listings. If we later hold enough detail, the listing is published automatically.
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">How Listing Descriptions Are Written</h2>
+                <p class="mb-4">
+                    Each published listing carries a short description written from facts we hold about
+                    that specific business. Where the business operates its own website, we read the
+                    pages it publishes about itself and summarise the concrete details it states there —
+                    services, opening days, ownership, stated pricing, booking and deposit policies. That
+                    summary is drafted with AI assistance from those extracted facts and is written in our
+                    own words; we do not copy the business's wording, and we do not invent details that
+                    the business has not published.
+                </p>
+                <p class="mb-4">
+                    Where a business has no usable website, the description is composed only from the
+                    structured facts we hold — business type, services, opening hours and location.
+                    Ratings and review counts shown on a listing are Google's, labelled as such; we do
+                    not write reviews and we do not collect them. Prices shown are as published by the
+                    business on its own site{% if data_checked_on %}, checked {{ data_checked_on }}{% endif %},
+                    and can change without notice.
+                </p>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
