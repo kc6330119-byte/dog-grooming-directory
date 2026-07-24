@@ -944,6 +944,87 @@ def build_category_pages(env, groomers):
         print(f"Built: category/{category['slug']}.html ({len(category_groomers)} groomers)")
 
 
+# --- Editorial internal-linking / topic clusters -----------------------------
+# The post template previously picked the FIRST 3 entries of all_posts as
+# "related", so the same 3 posts collected every internal link and 32 of 36
+# posts received none. Relatedness is now scored on shared title terms, with a
+# coverage pass guaranteeing every post is linked from at least one other post.
+
+_STOPWORDS = {
+    "the", "a", "an", "and", "or", "for", "your", "you", "how", "what", "why",
+    "to", "of", "in", "at", "on", "with", "guide", "dog", "dogs", "grooming",
+    "groom", "complete", "everything", "need", "know", "that", "this", "is",
+    "it", "its", "about", "when", "from", "their", "them", "should", "does",
+}
+
+
+def _post_ref(post):
+    """Minimal, acyclic representation of a post for use in related-post lists."""
+    return {
+        "slug": post.get("slug", ""),
+        "title": post.get("title", ""),
+        "excerpt": post.get("excerpt", ""),
+        "publish_date": post.get("publish_date", ""),
+    }
+
+
+def _title_terms(post):
+    words = re.findall(r"[a-z]+", str(post.get("title", "")).lower())
+    return {w for w in words if len(w) > 2 and w not in _STOPWORDS}
+
+
+def compute_related_posts(posts, k=3):
+    """Attach `related` (k topically-closest posts) to every post.
+
+    Returns nothing; mutates each post dict. Scoring is term overlap on titles,
+    tie-broken by recency, so breed guides cluster with breed guides and
+    how-to/cost posts cluster with each other.
+    """
+    terms = {p["slug"]: _title_terms(p) for p in posts if p.get("slug")}
+    inbound = defaultdict(int)
+
+    for post in posts:
+        slug = post.get("slug")
+        if not slug:
+            continue
+        mine = terms[slug]
+        scored = []
+        for other in posts:
+            oslug = other.get("slug")
+            if not oslug or oslug == slug:
+                continue
+            overlap = len(mine & terms[oslug])
+            scored.append((overlap, str(other.get("publish_date", "")), oslug, other))
+        scored.sort(key=lambda x: (-x[0], x[1]), reverse=False)
+        scored.sort(key=lambda x: -x[0])
+        # Store lightweight refs, not the post objects themselves: a post's
+        # related list would otherwise point back at posts that point at it,
+        # and the sitemap datestore JSON-serializes post data (circular ref).
+        post["related"] = [_post_ref(o) for _, _, _, o in scored[:k]]
+        for o in post["related"]:
+            inbound[o["slug"]] += 1
+
+    # Coverage pass: any post nobody links to gets swapped into the related list
+    # of the post it is most similar to (replacing that post's weakest pick).
+    for post in posts:
+        slug = post.get("slug")
+        if not slug or inbound[slug]:
+            continue
+        best, best_score = None, -1
+        for other in posts:
+            oslug = other.get("slug")
+            if not oslug or oslug == slug:
+                continue
+            score = len(terms[slug] & terms[oslug])
+            if score > best_score:
+                best, best_score = other, score
+        if best and best.get("related"):
+            dropped = best["related"].pop()
+            inbound[dropped["slug"]] -= 1
+            best["related"].append(_post_ref(post))
+            inbound[slug] += 1
+
+
 def build_blog_page(env, posts):
     """Build the blog listing page."""
     template = env.get_template("blog.html")
@@ -961,6 +1042,7 @@ def build_blog_page(env, posts):
 def build_post_pages(env, posts):
     """Build individual blog post pages with BlogPosting JSON-LD and author bios."""
     template = env.get_template("post.html")
+    compute_related_posts(posts)
 
     for post in posts:
         if not post.get("slug"):
@@ -974,7 +1056,10 @@ def build_post_pages(env, posts):
         html = template.render(
             post=post,
             all_posts=posts,
-            page_title=f"{post['title']} - {config.SITE_NAME}",
+            related_posts=post.get("related", []),
+            # H1 keeps the full editorial title; the <title> tag is capped so it
+            # is not truncated in the SERP (27 of 36 were over the display limit).
+            page_title=seo_title(post["title"], config.SITE_NAME),
             meta_description=meta_desc,
             request_path=f"/blog/{post['slug']}",
         )
@@ -1377,12 +1462,40 @@ def load_breed_guide():
     return breeds
 
 
-def build_breed_guide(env, breeds):
+def link_breeds_to_posts(breeds, posts):
+    """Point each breed card at its dedicated post, where one exists.
+
+    Ten breeds (poodle, shih tzu, golden retriever, husky, yorkie, ...) are
+    covered by BOTH /dog-grooming-guide and a dedicated blog post, so the two
+    pages competed for the same query and Google often ranked neither well.
+    Linking the guide's card to the post makes the relationship hub -> spoke
+    instead of duplicate -> duplicate, and passes the guide's authority to the
+    deeper page. Matching is on the breed name appearing in the post slug.
+    """
+    if not breeds or not posts:
+        return
+    for breed in breeds:
+        name = str(breed.get("name", "")).lower()
+        key = re.sub(r"[^a-z]+", "-", name).strip("-")
+        if not key:
+            continue
+        breed["post_slug"] = ""
+        breed["post_title"] = ""
+        for post in posts:
+            slug = str(post.get("slug", ""))
+            if key and key in slug:
+                breed["post_slug"] = slug
+                breed["post_title"] = post.get("title", "")
+                break
+
+
+def build_breed_guide(env, breeds, posts=None):
     """Build the breed grooming guide page."""
     if not breeds:
         print("Skipped: breed guide (no data)")
         return
 
+    link_breeds_to_posts(breeds, posts or [])
     template = env.get_template("breed-guide.html")
 
     # Group by coat type and shedding level for the template
@@ -1542,7 +1655,7 @@ def main():
     build_static_pages(env, public_listing_pool, all_groomers=groomers)
     build_blog_page(env, posts)
     build_post_pages(env, posts)
-    build_breed_guide(env, breeds)
+    build_breed_guide(env, breeds, posts)
 
     print("\nBuilding SEO files...")
     build_sitemap(public_listing_pool, posts, breeds)

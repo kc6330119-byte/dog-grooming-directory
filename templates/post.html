@@ -165,17 +165,12 @@
 </article>
 
 <!-- Related Posts -->
-{% set related = [] %}
-{% for p in all_posts %}
-    {% if p.slug != post.slug and related | length < 3 %}
-        {% set related = related.append(p) or related %}
-    {% endif %}
-{% endfor %}
+{% set related = related_posts %}
 
 {% if related %}
 <section class="bg-gray-50 border-t py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-lg font-bold text-gray-900 mb-6">More from the Blog</h2>
+        <h2 class="text-lg font-bold text-gray-900 mb-6">Related grooming guides</h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {% for p in related %}
             <a href="/blog/{{ p.slug }}"
