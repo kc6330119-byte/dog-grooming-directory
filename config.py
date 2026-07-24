@@ -17,7 +17,14 @@ OUTPUT_DIR = BASE_DIR / "dist"
 
 # Site Configuration
 SITE_NAME = "Dog Groomer Locator"
-SITE_DESCRIPTION = "Find trusted dog groomers near you. Browse ratings, services, prices, and reviews for professional pet grooming across America."
+# NB: describe only what the site actually provides. It has no first-party reviews (Google
+# ratings are shown with attribution) and no price data (the Price Range field is empty on
+# every record). Claiming either violates AdSense P4 — "no claiming content or services the
+# site does not actually provide" — on every page at once, since this string is the sitewide
+# meta and og:description fallback.
+SITE_DATA_CHECKED_ON = "July 2026"  # when listing source data was last refreshed/crawled
+
+SITE_DESCRIPTION = "Find a dog groomer near you. Browse curated listings by state and city with hours, services, and Google ratings, plus practical guides to grooming costs, breeds, and choosing a groomer."
 SITE_URL = os.getenv("SITE_URL", "https://doggroomerlocator.com")
 SITE_AUTHOR = "Dog Groomer Locator"
 DEFAULT_OG_IMAGE = "/static/images/og-image.png"
@@ -214,7 +221,7 @@ GA_MEASUREMENT_ID = os.getenv("GA_MEASUREMENT_ID", "G-GLHVWDC9HQ")
 
 # SEO Settings
 DEFAULT_META_TITLE = "Dog Groomers Near Me | Local Dog Grooming Directory"
-DEFAULT_META_DESCRIPTION = "Find dog groomers near you by state, city, service type, ratings, hours, prices, and reviews. Browse mobile, full-service, and affordable grooming."
+DEFAULT_META_DESCRIPTION = "Find dog groomers near you by state, city, and service type, with hours, services, and Google ratings. Browse mobile, full-service, and self-service grooming."
 
 # Build Settings
 ITEMS_PER_PAGE = 24

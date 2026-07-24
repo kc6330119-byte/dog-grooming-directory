@@ -128,6 +128,13 @@
             <div class="mb-8">
                 <h2 class="text-lg font-semibold text-gray-900 mb-3">About This Groomer</h2>
                 <p class="text-gray-600 leading-relaxed">{{ groomer.description }}</p>
+                {% if description_has_price %}
+                <p class="text-xs text-gray-400 mt-3">
+                    Pricing shown is as published by the business on its own website
+                    {% if description_sourced_on %}(checked {{ description_sourced_on }}){% endif %}
+                    and is subject to change. Confirm current pricing directly with the groomer.
+                </p>
+                {% endif %}
             </div>
             {% endif %}
 

@@ -199,6 +199,8 @@ def clear_airtable_photo_url(airtable_id):
 # policy risk AND the site's #1 templated shingle (99% of indexable pages).
 # The visible star badge in groomer.html keeps the rating with attribution;
 # the body sentence is stripped at fetch. Same approach as the sister site.
+PRICE_RE = re.compile(r"\$\d")  # any currency figure in a description
+
 RATING_CLAIM_RE = re.compile(
     r"\s*It (?:holds|has|maintains) a [\d.]+-star rating(?: from [\d,]+ Google reviews?)?\.",
     re.IGNORECASE,
@@ -890,6 +892,10 @@ def build_groomer_pages(env, groomers, public_listing_pool):
             noindex=False,       # gate-failing listings no longer reach this point
             suppress_ads=False,
             quality_reason=quality_reason(groomer),
+            # Prices come from the business's own website and go stale. Disclose provenance
+            # and a capture date rather than presenting a figure as current fact.
+            description_has_price=bool(PRICE_RE.search(groomer.get("description", "") or "")),
+            description_sourced_on=config.SITE_DATA_CHECKED_ON,
         )
 
         output_path = config.OUTPUT_DIR / "groomer" / f"{groomer['slug']}.html"
