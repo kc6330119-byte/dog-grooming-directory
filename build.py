@@ -207,12 +207,34 @@ RATING_CLAIM_RE = re.compile(
 )
 
 
+# Minimum listings a real build must produce. Airtable returns an EMPTY LIST
+# (not None) when the Groomers table has no rows, so without this guard the build
+# would succeed and publish a site with zero listings — silently replacing every
+# live page. Fail loudly instead. Set ALLOW_SMALL_BUILD=true to override when a
+# small or empty site is genuinely intended.
+MIN_EXPECTED_LISTINGS = int(os.getenv("MIN_EXPECTED_LISTINGS", "500"))
+
+
 def get_groomers():
     """Get groomers from Airtable or fall back to sample data."""
     groomers = fetch_from_airtable()
     if groomers is None:
         groomers = get_sample_data()
         print(f"Using {len(groomers)} sample groomers.")
+        dedupe_slugs(groomers)
+        return groomers
+
+    allow_small = os.getenv("ALLOW_SMALL_BUILD", "").lower() in {"1", "true", "yes", "on"}
+    if len(groomers) < MIN_EXPECTED_LISTINGS and not allow_small:
+        raise SystemExit(
+            f"\nABORTING BUILD: Airtable returned {len(groomers)} listings, "
+            f"below the expected minimum of {MIN_EXPECTED_LISTINGS}.\n"
+            "Publishing this would replace the live site with an empty directory.\n"
+            "If the Airtable data was intentionally removed, the deployed site should be\n"
+            "left as-is (do not redeploy). To restore, re-import the CSV backup in data/\n"
+            "via upload_to_airtable.py. To build a genuinely small site anyway, set\n"
+            "ALLOW_SMALL_BUILD=true.\n"
+        )
     dedupe_slugs(groomers)
     return groomers
 
